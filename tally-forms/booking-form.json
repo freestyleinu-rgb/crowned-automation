@@ -1,0 +1,242 @@
+{
+  "formName": "Booking Request Form",
+  "description": "Client-facing booking form for appointment requests",
+  "webhookIntegration": {
+    "enabled": true,
+    "url": "YOUR_MAKE_WEBHOOK_URL",
+    "note": "Replace with Make.com Scenario 1 webhook URL"
+  },
+  "branding": {
+    "logo": "{{business_logo_url}}",
+    "primaryColor": "{{brand_color}}",
+    "backgroundColor": "#ffffff",
+    "fontFamily": "Inter"
+  },
+  "pages": [
+    {
+      "pageNumber": 1,
+      "title": "Your Information",
+      "fields": [
+        {
+          "id": "business_id",
+          "type": "hidden",
+          "value": "{{BUSINESS_ID}}",
+          "description": "Hidden field to identify which business this booking is for"
+        },
+        {
+          "id": "client_name",
+          "type": "text",
+          "label": "Full Name",
+          "placeholder": "Enter your full name",
+          "required": true,
+          "validation": {
+            "minLength": 2,
+            "maxLength": 100
+          }
+        },
+        {
+          "id": "client_email",
+          "type": "email",
+          "label": "Email Address",
+          "placeholder": "your@email.com",
+          "required": true,
+          "helpText": "We'll send your booking confirmation here"
+        },
+        {
+          "id": "client_phone",
+          "type": "phone",
+          "label": "Phone Number",
+          "placeholder": "(555) 555-5555",
+          "required": true,
+          "helpText": "For appointment reminders"
+        }
+      ]
+    },
+    {
+      "pageNumber": 2,
+      "title": "Service Selection",
+      "fields": [
+        {
+          "id": "service_type",
+          "type": "dropdown",
+          "label": "What service are you booking?",
+          "required": true,
+          "options": [
+            "Custom Wig Installation",
+            "Wig Customization Only",
+            "Silk Press",
+            "Silk Press + Trim",
+            "Knotless Braids",
+            "Box Braids",
+            "Cornrows",
+            "Sew-in Weave",
+            "Frontal Install",
+            "Closure Install",
+            "Hair Color",
+            "Deep Conditioning Treatment",
+            "Consultation Only",
+            "Other (describe below)"
+          ],
+          "note": "Customize options per business type"
+        },
+        {
+          "id": "service_description",
+          "type": "textarea",
+          "label": "Tell us more about what you're looking for",
+          "placeholder": "Include details like: style inspiration, length, color preferences, any allergies or sensitivities...",
+          "required": false,
+          "maxLength": 1000
+        },
+        {
+          "id": "service_price",
+          "type": "number",
+          "label": "Service Price",
+          "required": true,
+          "helpText": "Enter the quoted price for your service",
+          "prefix": "$",
+          "validation": {
+            "min": 0,
+            "max": 10000
+          },
+          "note": "Can be pre-filled if using a service menu integration"
+        },
+        {
+          "id": "reference_images",
+          "type": "file",
+          "label": "Reference Photos (optional)",
+          "accept": "image/*",
+          "multiple": true,
+          "maxFiles": 5,
+          "helpText": "Upload any inspiration photos"
+        }
+      ]
+    },
+    {
+      "pageNumber": 3,
+      "title": "Select Date & Time",
+      "fields": [
+        {
+          "id": "appointment_date",
+          "type": "date",
+          "label": "Preferred Date",
+          "required": true,
+          "validation": {
+            "minDate": "today",
+            "maxDate": "+90days"
+          },
+          "disabledDays": ["sunday"],
+          "note": "Configure disabled days per business schedule"
+        },
+        {
+          "id": "appointment_time",
+          "type": "dropdown",
+          "label": "Preferred Time",
+          "required": true,
+          "options": [
+            "9:00 AM",
+            "9:30 AM",
+            "10:00 AM",
+            "10:30 AM",
+            "11:00 AM",
+            "11:30 AM",
+            "12:00 PM",
+            "12:30 PM",
+            "1:00 PM",
+            "1:30 PM",
+            "2:00 PM",
+            "2:30 PM",
+            "3:00 PM",
+            "3:30 PM",
+            "4:00 PM",
+            "4:30 PM",
+            "5:00 PM"
+          ],
+          "note": "Configure available times per business hours"
+        },
+        {
+          "id": "flexibility",
+          "type": "radio",
+          "label": "How flexible are you with this time?",
+          "options": [
+            "This time only",
+            "Flexible within 1-2 hours",
+            "Any time that day works"
+          ],
+          "required": false
+        }
+      ]
+    },
+    {
+      "pageNumber": 4,
+      "title": "Policies & Confirmation",
+      "fields": [
+        {
+          "id": "policy_display",
+          "type": "statement",
+          "content": "## 📋 Important Policies\n\n**Deposit Policy:**\nA {{deposit_percent}}% deposit is required to secure your appointment.\n\n**Cancellation Policy:**\n{{cancellation_policy}}\n\n**No-Show Policy:**\n{{no_show_policy}}",
+          "style": {
+            "backgroundColor": "#f8f9fa",
+            "padding": "20px",
+            "borderRadius": "10px"
+          }
+        },
+        {
+          "id": "policy_agreement",
+          "type": "checkbox",
+          "label": "I have read and agree to the deposit, cancellation, and no-show policies",
+          "required": true
+        },
+        {
+          "id": "marketing_consent",
+          "type": "checkbox",
+          "label": "I'd like to receive promotional emails and exclusive offers",
+          "required": false
+        },
+        {
+          "id": "how_heard",
+          "type": "dropdown",
+          "label": "How did you hear about us?",
+          "options": [
+            "Instagram",
+            "TikTok",
+            "Facebook",
+            "Google Search",
+            "Friend/Family Referral",
+            "Returning Client",
+            "Other"
+          ],
+          "required": false
+        }
+      ]
+    }
+  ],
+  "submitButton": {
+    "text": "Request Booking →",
+    "style": {
+      "backgroundColor": "{{brand_color}}",
+      "color": "#ffffff",
+      "borderRadius": "30px",
+      "padding": "15px 40px"
+    }
+  },
+  "confirmationPage": {
+    "title": "Booking Request Received! 🎉",
+    "message": "Thank you for your booking request!\n\nYou'll receive an email shortly with your deposit payment link. Your appointment will be confirmed once payment is received.\n\n**Questions?** Reply to your confirmation email or call us at {{business_phone}}.",
+    "redirectUrl": null,
+    "showSocialShare": false
+  },
+  "webhookPayload": {
+    "business_id": "{{business_id}}",
+    "client_name": "{{client_name}}",
+    "client_email": "{{client_email}}",
+    "client_phone": "{{client_phone}}",
+    "service_type": "{{service_type}}",
+    "service_description": "{{service_description}}",
+    "service_price": "{{service_price}}",
+    "appointment_date": "{{appointment_date}}",
+    "appointment_time": "{{appointment_time}}",
+    "policy_agreed": "{{policy_agreement}}",
+    "referral_source": "{{how_heard}}",
+    "response_id": "{{_responseId}}"
+  }
+}

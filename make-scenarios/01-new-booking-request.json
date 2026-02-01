@@ -1,0 +1,301 @@
+{
+  "scenario": {
+    "name": "New Booking Request",
+    "description": "Client submits booking request → System calculates deposit → Creates Stripe invoice → Sends confirmation email",
+    "trigger": "Tally Form Webhook",
+    "frequency": "On webhook event",
+    "modules": [
+      {
+        "id": 1,
+        "name": "Webhook - Tally Form Trigger",
+        "type": "webhooks.customWebhook",
+        "description": "Receives booking form submissions from Tally",
+        "config": {
+          "webhookName": "Booking Form Submission"
+        },
+        "expectedData": {
+          "business_id": "string - ID of the business",
+          "client_name": "string - Full name of client",
+          "client_email": "string - Email address",
+          "client_phone": "string - Phone number",
+          "service_type": "string - Type of service requested",
+          "service_description": "string - Additional details",
+          "appointment_date": "string - YYYY-MM-DD format",
+          "appointment_time": "string - HH:MM format",
+          "service_price": "number - Total service cost",
+          "response_id": "string - Tally submission ID"
+        }
+      },
+      {
+        "id": 2,
+        "name": "Router - Business Routing",
+        "type": "flow.router",
+        "description": "Routes to correct business based on business_id",
+        "routes": [
+          {
+            "name": "Route 1",
+            "condition": "{{1.business_id}} = 1",
+            "label": "Business 1"
+          },
+          {
+            "name": "Route 2",
+            "condition": "{{1.business_id}} = 2",
+            "label": "Business 2"
+          }
+        ],
+        "note": "Add additional routes as you onboard more clients"
+      },
+      {
+        "id": 3,
+        "name": "Airtable - Get Business Record",
+        "type": "airtable.searchRecords",
+        "description": "Retrieves business configuration and settings",
+        "config": {
+          "base": "Crowned N Beauty AI - Master",
+          "table": "BUSINESSES",
+          "filter": {
+            "field": "Business ID",
+            "operator": "=",
+            "value": "{{1.business_id}}"
+          },
+          "maxRecords": 1
+        },
+        "outputFields": [
+          "id",
+          "Business Name",
+          "Owner Email",
+          "Default Deposit %",
+          "Stripe Connect ID",
+          "Timezone",
+          "Booking Form URL",
+          "Business Address",
+          "Owner Phone"
+        ]
+      },
+      {
+        "id": 4,
+        "name": "Airtable - Search for Existing Client",
+        "type": "airtable.searchRecords",
+        "description": "Checks if client already exists in the system",
+        "config": {
+          "base": "Crowned N Beauty AI - Master",
+          "table": "CLIENTS",
+          "filterFormula": "AND({Email} = '{{1.client_email}}', RECORD_ID({Business}) = '{{3.id}}')",
+          "maxRecords": 1
+        }
+      },
+      {
+        "id": 5,
+        "name": "Router - New vs Returning Client",
+        "type": "flow.router",
+        "description": "Splits flow based on whether client exists",
+        "routes": [
+          {
+            "name": "Route 1 - New Client",
+            "condition": "{{length(4.records)}} = 0",
+            "label": "Create new client record"
+          },
+          {
+            "name": "Route 2 - Existing Client",
+            "condition": "{{length(4.records)}} > 0",
+            "label": "Use existing client record"
+          }
+        ]
+      },
+      {
+        "id": "6A",
+        "name": "Airtable - Create Client Record",
+        "type": "airtable.createRecord",
+        "description": "Creates new client record (Route 1 only)",
+        "route": "Route 1 - New Client",
+        "config": {
+          "base": "Crowned N Beauty AI - Master",
+          "table": "CLIENTS",
+          "fields": {
+            "Business": ["{{3.id}}"],
+            "Full Name": "{{1.client_name}}",
+            "Email": "{{1.client_email}}",
+            "Phone": "{{1.client_phone}}",
+            "Client Status": "Active"
+          }
+        }
+      },
+      {
+        "id": 7,
+        "name": "Set Variables",
+        "type": "tools.setVariable",
+        "description": "Consolidates client ID and calculates values",
+        "variables": [
+          {
+            "name": "client_record_id",
+            "value": "{{IF(length(4.records) > 0, 4.records[0].id, 6A.id)}}"
+          },
+          {
+            "name": "deposit_percentage",
+            "value": "{{3.fields['Default Deposit %']}}"
+          },
+          {
+            "name": "service_price",
+            "value": "{{1.service_price}}"
+          }
+        ]
+      },
+      {
+        "id": 8,
+        "name": "Math - Calculate Deposit",
+        "type": "math.evaluate",
+        "description": "Calculates deposit amount",
+        "formula": "round({{service_price}} * ({{deposit_percentage}} / 100), 2)",
+        "output": "deposit_amount"
+      },
+      {
+        "id": 9,
+        "name": "Airtable - Create Appointment Record",
+        "type": "airtable.createRecord",
+        "description": "Creates the appointment record",
+        "config": {
+          "base": "Crowned N Beauty AI - Master",
+          "table": "APPOINTMENTS",
+          "fields": {
+            "Business": ["{{3.id}}"],
+            "Client": ["{{client_record_id}}"],
+            "Service Type": "{{1.service_type}}",
+            "Service Description": "{{1.service_description}}",
+            "Appointment Date": "{{1.appointment_date}}T{{1.appointment_time}}:00",
+            "Service Price": "{{service_price}}",
+            "Deposit %": "{{deposit_percentage}}",
+            "Deposit Status": "Pending",
+            "Appointment Status": "Scheduled",
+            "Booking Form Response ID": "{{1.response_id}}"
+          }
+        },
+        "saveAs": "appointment_record"
+      },
+      {
+        "id": 10,
+        "name": "Airtable - Get Cancellation Policy",
+        "type": "airtable.searchRecords",
+        "description": "Retrieves active cancellation policy for the business",
+        "config": {
+          "base": "Crowned N Beauty AI - Master",
+          "table": "POLICIES",
+          "filterFormula": "AND(RECORD_ID({Business}) = '{{3.id}}', {Policy Type} = 'Cancellation', {Active} = TRUE())",
+          "maxRecords": 1
+        }
+      },
+      {
+        "id": 11,
+        "name": "Stripe - Create Invoice",
+        "type": "stripe.createInvoice",
+        "description": "Creates Stripe invoice for deposit",
+        "config": {
+          "connection": "Use Stripe Connect with {{3.fields['Stripe Connect ID']}}",
+          "customerEmail": "{{1.client_email}}",
+          "description": "Deposit for {{1.service_type}} on {{formatDate(appointment_record.fields['Appointment Date'], 'MMMM D, YYYY')}}",
+          "amount": "{{deposit_amount * 100}}",
+          "currency": "usd",
+          "metadata": {
+            "business_id": "{{3.fields['Business ID']}}",
+            "appointment_id": "{{appointment_record.fields['Appointment ID']}}",
+            "client_name": "{{1.client_name}}"
+          },
+          "autoAdvance": true
+        },
+        "note": "Amount is in cents, so multiply by 100"
+      },
+      {
+        "id": 12,
+        "name": "Airtable - Update Appointment with Stripe IDs",
+        "type": "airtable.updateRecord",
+        "description": "Stores Stripe invoice ID on appointment",
+        "config": {
+          "base": "Crowned N Beauty AI - Master",
+          "table": "APPOINTMENTS",
+          "recordId": "{{appointment_record.id}}",
+          "fields": {
+            "Stripe Invoice ID": "{{11.id}}"
+          }
+        }
+      },
+      {
+        "id": 13,
+        "name": "Airtable - Get Email Template",
+        "type": "airtable.searchRecords",
+        "description": "Retrieves booking confirmation email template",
+        "config": {
+          "base": "Crowned N Beauty AI - Master",
+          "table": "EMAIL_TEMPLATES",
+          "filterFormula": "AND(OR(RECORD_ID({Business}) = '{{3.id}}', {Business} = BLANK()), {Template Type} = 'Booking Confirmation', {Active} = TRUE())",
+          "maxRecords": 1,
+          "sort": [
+            {
+              "field": "Business",
+              "direction": "desc"
+            }
+          ]
+        },
+        "note": "Prioritizes business-specific template, falls back to global template"
+      },
+      {
+        "id": 14,
+        "name": "Text Parser - Replace Variables",
+        "type": "tools.textParser.replace",
+        "description": "Replaces template variables with actual values",
+        "config": {
+          "text": "{{13.fields['Email Body']}}",
+          "replacements": {
+            "{{client_name}}": "{{1.client_name}}",
+            "{{business_name}}": "{{3.fields['Business Name']}}",
+            "{{service_type}}": "{{1.service_type}}",
+            "{{appointment_date}}": "{{formatDate(appointment_record.fields['Appointment Date'], 'MMMM D, YYYY at h:mm A')}}",
+            "{{deposit_amount}}": "${{deposit_amount}}",
+            "{{remaining_balance}}": "${{appointment_record.fields['Remaining Balance']}}",
+            "{{cancellation_policy}}": "{{10.records[0].fields['Policy Text']}}",
+            "{{payment_link}}": "{{11.hosted_invoice_url}}",
+            "{{business_address}}": "{{3.fields['Business Address']}}",
+            "{{business_phone}}": "{{3.fields['Owner Phone']}}"
+          }
+        }
+      },
+      {
+        "id": 15,
+        "name": "Gmail - Send Confirmation Email",
+        "type": "gmail.sendEmail",
+        "description": "Sends booking confirmation with payment link",
+        "config": {
+          "to": "{{1.client_email}}",
+          "subject": "{{13.fields['Subject Line']}}",
+          "body": "{{14.output}}",
+          "from": "{{3.fields['Owner Email']}}"
+        }
+      },
+      {
+        "id": 16,
+        "name": "Airtable - Mark Confirmation Sent",
+        "type": "airtable.updateRecord",
+        "description": "Updates appointment to track email was sent",
+        "config": {
+          "base": "Crowned N Beauty AI - Master",
+          "table": "APPOINTMENTS",
+          "recordId": "{{appointment_record.id}}",
+          "fields": {
+            "Confirmation Sent": true
+          }
+        }
+      }
+    ],
+    "errorHandling": {
+      "onError": "stop",
+      "retries": 2,
+      "notifyEmail": "admin@crownednbeauty.com"
+    },
+    "testChecklist": [
+      "Submit test booking form",
+      "Verify client record created or found",
+      "Verify appointment record created with correct deposit calculation",
+      "Check Stripe invoice created with correct amount",
+      "Verify confirmation email received with all variables replaced",
+      "Confirm Airtable records updated with Stripe IDs and sent flags"
+    ]
+  }
+}

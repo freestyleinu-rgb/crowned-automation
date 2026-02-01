@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cancellation Confirmed</title>
+</head>
+<body style="font-family: 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+
+  <!-- Header -->
+  <div style="text-align: center; padding: 20px 0; border-bottom: 3px solid {{brand_color}};">
+    <h1 style="color: {{brand_color}}; margin: 0; font-size: 24px;">{{business_name}}</h1>
+  </div>
+
+  <!-- Main Content -->
+  <div style="padding: 30px 0;">
+    <p style="font-size: 18px; margin-bottom: 20px;">Hi {{client_name}},</p>
+
+    <p>Your appointment has been cancelled as requested.</p>
+
+    <!-- Cancelled Appointment Details -->
+    <div style="background-color: #f8f9fa; border-radius: 10px; padding: 25px; margin: 25px 0; border-left: 4px solid #6c757d;">
+      <h3 style="margin-top: 0; color: #6c757d;">Cancelled Appointment</h3>
+      <table style="width: 100%; border-collapse: collapse;">
+        <tr>
+          <td style="padding: 8px 0; color: #666;">Service:</td>
+          <td style="padding: 8px 0; text-decoration: line-through; color: #999;">{{service_type}}</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px 0; color: #666;">Date:</td>
+          <td style="padding: 8px 0; text-decoration: line-through; color: #999;">{{appointment_datetime}}</td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- Refund Status - FULL REFUND -->
+    {{#if refund_full}}
+    <div style="background-color: #d4edda; border-radius: 10px; padding: 25px; margin: 25px 0;">
+      <div style="text-align: center;">
+        <span style="font-size: 36px;">✅</span>
+        <h3 style="color: #155724; margin: 10px 0;">Full Refund Approved</h3>
+        <p style="font-size: 24px; font-weight: bold; color: #155724; margin: 10px 0;">{{refund_amount}}</p>
+        <p style="color: #666; margin: 0;">Will be processed within 5-7 business days</p>
+      </div>
+    </div>
+    {{/if}}
+
+    <!-- Refund Status - PARTIAL REFUND -->
+    {{#if refund_partial}}
+    <div style="background-color: #fff3cd; border-radius: 10px; padding: 25px; margin: 25px 0;">
+      <div style="text-align: center;">
+        <span style="font-size: 36px;">⚠️</span>
+        <h3 style="color: #856404; margin: 10px 0;">Partial Refund (50%)</h3>
+        <p style="font-size: 24px; font-weight: bold; color: #856404; margin: 10px 0;">{{refund_amount}}</p>
+        <p style="color: #666; margin: 0;">Per our cancellation policy (24-48 hour notice)</p>
+        <p style="color: #666; margin: 5px 0 0 0;">Will be processed within 5-7 business days</p>
+      </div>
+    </div>
+    {{/if}}
+
+    <!-- Refund Status - NO REFUND -->
+    {{#if refund_none}}
+    <div style="background-color: #f8d7da; border-radius: 10px; padding: 25px; margin: 25px 0;">
+      <div style="text-align: center;">
+        <span style="font-size: 36px;">❌</span>
+        <h3 style="color: #721c24; margin: 10px 0;">Deposit Forfeited</h3>
+        <p style="font-size: 24px; font-weight: bold; color: #721c24; margin: 10px 0;">{{deposit_amount}}</p>
+        <p style="color: #666; margin: 0;">Per our cancellation policy (less than 24 hour notice)</p>
+      </div>
+    </div>
+    {{/if}}
+
+    <!-- Policy Reminder -->
+    <div style="background-color: #f8f9fa; border-radius: 10px; padding: 20px; margin: 25px 0;">
+      <h3 style="margin-top: 0; color: #333; font-size: 16px;">📋 Our Cancellation Policy</h3>
+      <p style="margin-bottom: 0; color: #666; font-size: 14px;">{{cancellation_policy}}</p>
+    </div>
+
+    <!-- Rebook CTA -->
+    <div style="text-align: center; margin: 30px 0;">
+      <p style="color: #666; margin-bottom: 15px;">We'd love to see you another time!</p>
+      <a href="{{booking_form_url}}" style="display: inline-block; background-color: {{brand_color}}; color: white; text-decoration: none; padding: 15px 40px; border-radius: 30px; font-weight: bold; font-size: 16px;">Book a New Appointment →</a>
+    </div>
+
+    <p style="color: #666;">Thanks for your understanding.</p>
+
+    <p style="margin-top: 30px; font-weight: bold; color: {{brand_color}};">{{business_name}}</p>
+  </div>
+
+  <!-- Footer -->
+  <div style="text-align: center; padding: 20px; border-top: 1px solid #eee; color: #999; font-size: 12px;">
+    <p>This email was sent by {{business_name}}</p>
+    <p>Powered by Crowned N Beauty AI</p>
+  </div>
+
+</body>
+</html>
+
+<!--
+TEMPLATE METADATA
+================
+Template Name: Cancellation Confirmation
+Template Type: Cancellation Confirmation
+Subject Line: Cancellation Confirmed - {{business_name}}
+
+Variables Used:
+- {{client_name}} - Client's full name
+- {{business_name}} - Business name
+- {{brand_color}} - Business brand color (hex)
+- {{service_type}} - Type of service
+- {{appointment_datetime}} - Original appointment date/time
+- {{refund_amount}} - Amount being refunded (if any)
+- {{deposit_amount}} - Original deposit amount (for forfeiture display)
+- {{cancellation_policy}} - Business cancellation policy text
+- {{booking_form_url}} - Link to book again
+
+Conditional Blocks:
+- {{#if refund_full}} - Show if full refund approved
+- {{#if refund_partial}} - Show if 50% refund
+- {{#if refund_none}} - Show if deposit forfeited
+-->

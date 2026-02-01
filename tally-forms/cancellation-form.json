@@ -1,0 +1,181 @@
+{
+  "formName": "Cancellation Request Form",
+  "description": "Client-facing form for appointment cancellations and reschedule requests",
+  "webhookIntegration": {
+    "enabled": true,
+    "url": "YOUR_MAKE_WEBHOOK_URL",
+    "note": "Replace with Make.com Scenario 3 webhook URL"
+  },
+  "branding": {
+    "logo": "{{business_logo_url}}",
+    "primaryColor": "{{brand_color}}",
+    "backgroundColor": "#ffffff",
+    "fontFamily": "Inter"
+  },
+  "pages": [
+    {
+      "pageNumber": 1,
+      "title": "Cancellation Request",
+      "fields": [
+        {
+          "id": "business_id",
+          "type": "hidden",
+          "value": "{{BUSINESS_ID}}",
+          "description": "Hidden field to identify which business"
+        },
+        {
+          "id": "client_email",
+          "type": "email",
+          "label": "Email Address",
+          "placeholder": "Enter the email used for your booking",
+          "required": true,
+          "helpText": "Must match the email on your booking"
+        },
+        {
+          "id": "appointment_id",
+          "type": "text",
+          "label": "Appointment ID or Confirmation Number",
+          "placeholder": "Found in your confirmation email",
+          "required": true,
+          "helpText": "Check your booking confirmation email for this number"
+        },
+        {
+          "id": "request_type",
+          "type": "radio",
+          "label": "What would you like to do?",
+          "options": [
+            "Cancel my appointment",
+            "Reschedule to a different date/time"
+          ],
+          "required": true
+        }
+      ]
+    },
+    {
+      "pageNumber": 2,
+      "title": "Reason & Details",
+      "fields": [
+        {
+          "id": "cancellation_reason",
+          "type": "dropdown",
+          "label": "Reason for cancellation/reschedule",
+          "options": [
+            "Schedule conflict",
+            "Work/job conflict",
+            "Family emergency",
+            "Illness",
+            "Financial reasons",
+            "Found another provider",
+            "Change of plans",
+            "Other"
+          ],
+          "required": true
+        },
+        {
+          "id": "additional_details",
+          "type": "textarea",
+          "label": "Any additional details? (optional)",
+          "placeholder": "Let us know if there's anything else we should know...",
+          "required": false,
+          "maxLength": 500
+        },
+        {
+          "id": "preferred_new_date",
+          "type": "date",
+          "label": "Preferred new date (if rescheduling)",
+          "required": false,
+          "validation": {
+            "minDate": "today",
+            "maxDate": "+90days"
+          },
+          "conditionalLogic": {
+            "show": {
+              "when": "request_type",
+              "equals": "Reschedule to a different date/time"
+            }
+          }
+        },
+        {
+          "id": "preferred_new_time",
+          "type": "dropdown",
+          "label": "Preferred new time (if rescheduling)",
+          "options": [
+            "Morning (9am-12pm)",
+            "Afternoon (12pm-3pm)",
+            "Late Afternoon (3pm-6pm)",
+            "Flexible"
+          ],
+          "required": false,
+          "conditionalLogic": {
+            "show": {
+              "when": "request_type",
+              "equals": "Reschedule to a different date/time"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "pageNumber": 3,
+      "title": "Policy Acknowledgment",
+      "fields": [
+        {
+          "id": "policy_reminder",
+          "type": "statement",
+          "content": "## ⚠️ Cancellation Policy Reminder\n\n**Please note our refund policy:**\n\n✅ **48+ hours notice:** Full deposit refund\n\n⚠️ **24-48 hours notice:** 50% deposit refund\n\n❌ **Less than 24 hours:** No refund (deposit forfeited)\n\n---\n\n*Your refund eligibility will be calculated automatically based on when you submit this form.*",
+          "style": {
+            "backgroundColor": "#fff3cd",
+            "padding": "20px",
+            "borderRadius": "10px",
+            "borderLeft": "4px solid #ffc107"
+          }
+        },
+        {
+          "id": "policy_acknowledgment",
+          "type": "checkbox",
+          "label": "I understand and accept the cancellation policy terms",
+          "required": true
+        },
+        {
+          "id": "contact_preference",
+          "type": "radio",
+          "label": "How should we contact you about your request?",
+          "options": [
+            "Email is fine",
+            "Please call me",
+            "Text message preferred"
+          ],
+          "required": false
+        }
+      ]
+    }
+  ],
+  "submitButton": {
+    "text": "Submit Cancellation Request →",
+    "style": {
+      "backgroundColor": "#dc3545",
+      "color": "#ffffff",
+      "borderRadius": "30px",
+      "padding": "15px 40px"
+    }
+  },
+  "confirmationPage": {
+    "title": "Request Submitted",
+    "message": "Your cancellation/reschedule request has been received.\n\nYou'll receive a confirmation email shortly with details about any applicable refund based on our policy.\n\n**Questions?** Contact us at {{business_phone}}",
+    "redirectUrl": null,
+    "showSocialShare": false
+  },
+  "webhookPayload": {
+    "business_id": "{{business_id}}",
+    "client_email": "{{client_email}}",
+    "appointment_id": "{{appointment_id}}",
+    "request_type": "{{request_type}}",
+    "cancellation_reason": "{{cancellation_reason}}",
+    "additional_details": "{{additional_details}}",
+    "preferred_new_date": "{{preferred_new_date}}",
+    "preferred_new_time": "{{preferred_new_time}}",
+    "policy_acknowledged": "{{policy_acknowledgment}}",
+    "response_id": "{{_responseId}}",
+    "submitted_at": "{{_submittedAt}}"
+  }
+}

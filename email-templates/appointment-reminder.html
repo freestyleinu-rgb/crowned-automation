@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Appointment Reminder</title>
+</head>
+<body style="font-family: 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+
+  <!-- Header -->
+  <div style="text-align: center; padding: 20px 0; border-bottom: 3px solid {{brand_color}};">
+    <h1 style="color: {{brand_color}}; margin: 0; font-size: 24px;">{{business_name}}</h1>
+  </div>
+
+  <!-- Reminder Banner -->
+  <div style="background-color: #e7f3ff; border-radius: 10px; padding: 20px; margin: 25px 0; text-align: center;">
+    <span style="font-size: 48px;">📅</span>
+    <h2 style="color: #0066cc; margin: 10px 0 0 0;">Your Appointment is Tomorrow!</h2>
+  </div>
+
+  <!-- Main Content -->
+  <div style="padding: 10px 0;">
+    <p style="font-size: 18px; margin-bottom: 20px;">Hi {{client_first_name}}! 👋</p>
+
+    <p>Just a friendly reminder about your upcoming appointment:</p>
+
+    <!-- Appointment Details Box -->
+    <div style="background-color: #f8f9fa; border-radius: 10px; padding: 25px; margin: 25px 0; border-left: 4px solid {{brand_color}};">
+      <table style="width: 100%; border-collapse: collapse;">
+        <tr>
+          <td style="padding: 12px 0; font-size: 16px;">📋 <strong>Service:</strong></td>
+          <td style="padding: 12px 0; font-size: 16px; font-weight: bold;">{{service_type}}</td>
+        </tr>
+        <tr>
+          <td style="padding: 12px 0; font-size: 16px;">🗓️ <strong>Date:</strong></td>
+          <td style="padding: 12px 0; font-size: 16px; font-weight: bold;">{{appointment_date}}</td>
+        </tr>
+        <tr>
+          <td style="padding: 12px 0; font-size: 16px;">🕐 <strong>Time:</strong></td>
+          <td style="padding: 12px 0; font-size: 16px; font-weight: bold;">{{appointment_time}}</td>
+        </tr>
+        <tr>
+          <td style="padding: 12px 0; font-size: 16px;">📍 <strong>Location:</strong></td>
+          <td style="padding: 12px 0; font-size: 16px;">{{business_address}}</td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- Balance Due Box -->
+    <div style="background-color: #fff3cd; border-radius: 10px; padding: 20px; margin: 25px 0; text-align: center;">
+      <p style="margin: 0; color: #666;">💰 Balance due at appointment:</p>
+      <p style="font-size: 28px; font-weight: bold; color: {{brand_color}}; margin: 10px 0;">{{remaining_balance}}</p>
+    </div>
+
+    <!-- Need to Cancel -->
+    <div style="background-color: #f8d7da; border-radius: 10px; padding: 20px; margin: 25px 0;">
+      <h3 style="margin-top: 0; color: #721c24; font-size: 16px;">⚠️ Need to Cancel or Reschedule?</h3>
+      <p style="margin-bottom: 10px; color: #721c24; font-size: 14px;">Please let us know ASAP. Cancellations within 24 hours may result in deposit forfeiture per our policy.</p>
+      <a href="{{cancellation_form_url}}" style="display: inline-block; background-color: #dc3545; color: white; text-decoration: none; padding: 10px 20px; border-radius: 20px; font-size: 14px;">Cancel/Reschedule →</a>
+    </div>
+
+    <p style="color: #666;">Questions? Reply to this email or call us at {{business_phone}}.</p>
+
+    <p style="margin-top: 30px;">See you tomorrow! ✨</p>
+    <p style="font-weight: bold; color: {{brand_color}};">{{business_name}}</p>
+  </div>
+
+  <!-- Footer -->
+  <div style="text-align: center; padding: 20px; border-top: 1px solid #eee; color: #999; font-size: 12px;">
+    <p>This email was sent by {{business_name}}</p>
+    <p>Powered by Crowned N Beauty AI</p>
+  </div>
+
+</body>
+</html>
+
+<!--
+TEMPLATE METADATA
+================
+Template Name: 24-Hour Appointment Reminder
+Template Type: Appointment Reminder
+Subject Line: 📅 Reminder: Your appointment is tomorrow - {{business_name}}
+
+Variables Used:
+- {{client_first_name}} - Client's first name
+- {{business_name}} - Business name
+- {{brand_color}} - Business brand color (hex)
+- {{service_type}} - Type of service
+- {{appointment_date}} - Date only
+- {{appointment_time}} - Time only
+- {{business_address}} - Business location
+- {{remaining_balance}} - Balance due at appointment
+- {{cancellation_form_url}} - Link to cancel/reschedule
+- {{business_phone}} - Business phone number
+-->

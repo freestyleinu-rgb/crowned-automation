@@ -1,0 +1,224 @@
+{
+  "scenario": {
+    "name": "No-Show Enforcement",
+    "description": "Scheduled check for appointments that passed without confirmation → Mark as no-show → Charge remaining balance (optional) → Update client risk score",
+    "trigger": "Schedule (every 1 hour)",
+    "frequency": "Every hour",
+    "modules": [
+      {
+        "id": 1,
+        "name": "Schedule Trigger",
+        "type": "tools.schedule",
+        "description": "Runs hourly to check for no-shows",
+        "config": {
+          "frequency": "every 1 hour",
+          "startTime": "00:00"
+        }
+      },
+      {
+        "id": 2,
+        "name": "Airtable - Search Recent Appointments",
+        "type": "airtable.searchRecords",
+        "description": "Finds appointments that have passed without confirmation",
+        "config": {
+          "base": "Crowned N Beauty AI - Master",
+          "table": "APPOINTMENTS",
+          "filterFormula": "AND({Appointment Status} = 'Scheduled', IS_BEFORE({Appointment Date}, NOW()), {Attendance Confirmed} = FALSE(), DATETIME_DIFF(NOW(), {Appointment Date}, 'hours') <= 2)",
+          "maxRecords": 50
+        },
+        "note": "Looks for scheduled appointments that are up to 2 hours past their time without confirmation"
+      },
+      {
+        "id": 3,
+        "name": "Iterator",
+        "type": "flow.iterator",
+        "description": "Loops through each potential no-show appointment",
+        "config": {
+          "array": "{{2.records}}"
+        }
+      },
+      {
+        "id": 4,
+        "name": "Airtable - Get Business",
+        "type": "airtable.getRecord",
+        "description": "Retrieves business settings",
+        "config": {
+          "base": "Crowned N Beauty AI - Master",
+          "table": "BUSINESSES",
+          "recordId": "{{3.fields.Business[0]}}"
+        }
+      },
+      {
+        "id": 5,
+        "name": "Airtable - Get Client",
+        "type": "airtable.getRecord",
+        "description": "Retrieves client record",
+        "config": {
+          "base": "Crowned N Beauty AI - Master",
+          "table": "CLIENTS",
+          "recordId": "{{3.fields.Client[0]}}"
+        }
+      },
+      {
+        "id": 6,
+        "name": "Airtable - Get No-Show Policy",
+        "type": "airtable.searchRecords",
+        "description": "Retrieves no-show policy rules",
+        "config": {
+          "base": "Crowned N Beauty AI - Master",
+          "table": "POLICIES",
+          "filterFormula": "AND(RECORD_ID({Business}) = '{{4.id}}', {Policy Type} = 'No-Show', {Active} = TRUE())",
+          "maxRecords": 1
+        }
+      },
+      {
+        "id": 7,
+        "name": "JSON - Parse Policy Rules",
+        "type": "json.parseJSON",
+        "description": "Parses the policy rule logic",
+        "config": {
+          "jsonString": "{{6.records[0].fields['Rule Logic (JSON)']}}"
+        },
+        "expectedOutput": {
+          "forfeit_deposit": "boolean",
+          "charge_remaining": "boolean",
+          "blacklist_after_count": "number",
+          "grace_period_minutes": "number"
+        }
+      },
+      {
+        "id": 8,
+        "name": "Router - Should Charge Remaining?",
+        "type": "flow.router",
+        "description": "Routes based on policy for charging remaining balance",
+        "routes": [
+          {
+            "name": "Route 1 - Charge Remaining",
+            "condition": "{{7.charge_remaining}} = true",
+            "label": "Policy requires charging remaining balance"
+          },
+          {
+            "name": "Route 2 - Deposit Only",
+            "condition": "{{7.charge_remaining}} = false",
+            "label": "Only forfeit deposit"
+          }
+        ]
+      },
+      {
+        "id": "9A",
+        "name": "Stripe - Charge Remaining Balance",
+        "type": "stripe.createPaymentIntent",
+        "description": "Charges remaining balance (Route 1 only)",
+        "route": "Route 1 - Charge Remaining",
+        "config": {
+          "connection": "Use Connect ID {{4.fields['Stripe Connect ID']}}",
+          "amount": "{{3.fields['Remaining Balance'] * 100}}",
+          "currency": "usd",
+          "customerEmail": "{{5.fields.Email}}",
+          "description": "No-show fee for {{3.fields['Service Type']}} on {{formatDate(3.fields['Appointment Date'], 'MM/DD/YYYY')}}",
+          "confirmImmediately": true
+        }
+      },
+      {
+        "id": 10,
+        "name": "Airtable - Update Appointment Status",
+        "type": "airtable.updateRecord",
+        "description": "Marks appointment as no-show",
+        "config": {
+          "base": "Crowned N Beauty AI - Master",
+          "table": "APPOINTMENTS",
+          "recordId": "{{3.id}}",
+          "fields": {
+            "Appointment Status": "No-Show",
+            "Deposit Status": "Forfeited",
+            "Notes": "{{3.fields.Notes}}\n\nAuto-marked as no-show on {{now}}"
+          }
+        }
+      },
+      {
+        "id": 11,
+        "name": "Airtable - Refresh Client Record",
+        "type": "airtable.getRecord",
+        "description": "Gets updated client no-show count",
+        "config": {
+          "base": "Crowned N Beauty AI - Master",
+          "table": "CLIENTS",
+          "recordId": "{{5.id}}"
+        },
+        "note": "Need fresh data after appointment update for accurate no-show count"
+      },
+      {
+        "id": 12,
+        "name": "Router - Should Blacklist Client?",
+        "type": "flow.router",
+        "description": "Checks if client should be blacklisted",
+        "routes": [
+          {
+            "name": "Route 1 - Blacklist",
+            "condition": "{{11.fields['No-Shows']}} >= {{7.blacklist_after_count}}",
+            "label": "Client has exceeded no-show limit"
+          },
+          {
+            "name": "Route 2 - Warning Only",
+            "condition": "{{11.fields['No-Shows']}} < {{7.blacklist_after_count}}",
+            "label": "Client still under limit"
+          }
+        ]
+      },
+      {
+        "id": "13A",
+        "name": "Airtable - Blacklist Client",
+        "type": "airtable.updateRecord",
+        "description": "Updates client status to Blacklisted (Route 1)",
+        "route": "Route 1 - Blacklist",
+        "config": {
+          "base": "Crowned N Beauty AI - Master",
+          "table": "CLIENTS",
+          "recordId": "{{5.id}}",
+          "fields": {
+            "Client Status": "Blacklisted",
+            "Notes": "{{5.fields.Notes}}\n\nAuto-blacklisted after {{11.fields['No-Shows']}} no-shows on {{now}}"
+          }
+        }
+      },
+      {
+        "id": 14,
+        "name": "Gmail - Send No-Show Notice",
+        "type": "gmail.sendEmail",
+        "description": "Sends notification to client about no-show",
+        "config": {
+          "to": "{{5.fields.Email}}",
+          "subject": "Missed Appointment - {{4.fields['Business Name']}}",
+          "body": "Hi {{5.fields['Full Name']}},\n\nWe noticed you missed your appointment for {{3.fields['Service Type']}} scheduled for {{formatDate(3.fields['Appointment Date'], 'MMMM D, YYYY at h:mm A')}}.\n\nPer our policy:\n{{6.records[0].fields['Policy Text']}}\n\n{{IF(7.charge_remaining, 'The remaining balance of $' + 3.fields['Remaining Balance'] + ' has been charged to your payment method.', 'Your deposit of $' + 3.fields['Deposit Amount'] + ' has been forfeited.')}}\n\n{{IF(11.fields['No-Shows'] >= 7.blacklist_after_count, '⚠️ Due to multiple no-shows, we are unable to accept future bookings at this time. Please contact us if you would like to discuss this.', 'We understand things happen. To reschedule, please visit: ' + 4.fields['Booking Form URL'])}}\n\nThank you,\n{{4.fields['Business Name']}}",
+          "from": "{{4.fields['Owner Email']}}"
+        }
+      },
+      {
+        "id": 15,
+        "name": "Gmail - Notify Business Owner",
+        "type": "gmail.sendEmail",
+        "description": "Alerts business owner about the no-show",
+        "config": {
+          "to": "{{4.fields['Owner Email']}}",
+          "subject": "🚨 No-Show Alert: {{5.fields['Full Name']}}",
+          "body": "A client missed their appointment:\n\nClient: {{5.fields['Full Name']}}\nEmail: {{5.fields.Email}}\nPhone: {{5.fields.Phone}}\n\nService: {{3.fields['Service Type']}}\nDate: {{formatDate(3.fields['Appointment Date'], 'MMMM D, YYYY at h:mm A')}}\n\nDeposit Forfeited: ${{3.fields['Deposit Amount']}}\n{{IF(7.charge_remaining, 'Remaining Balance Charged: $' + 3.fields['Remaining Balance'], '')}}\n\nClient No-Show Count: {{11.fields['No-Shows']}}\nClient Status: {{IF(11.fields['No-Shows'] >= 7.blacklist_after_count, '🔴 BLACKLISTED', '⚠️ Warning issued')}}\n\n- Crowned N Beauty AI System"
+        }
+      }
+    ],
+    "errorHandling": {
+      "onError": "continue",
+      "notifyEmail": "admin@crownednbeauty.com"
+    },
+    "testChecklist": [
+      "Create test appointment in the past without confirmation",
+      "Run scenario manually",
+      "Verify appointment marked as No-Show",
+      "Verify deposit marked as Forfeited",
+      "Test charge_remaining = true policy (if applicable)",
+      "Verify client no-show count incremented",
+      "Test blacklist threshold by creating multiple no-shows",
+      "Verify client email sent with correct policy information",
+      "Verify business owner notification sent"
+    ]
+  }
+}

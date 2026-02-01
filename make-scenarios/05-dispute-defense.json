@@ -1,0 +1,224 @@
+{
+  "scenario": {
+    "name": "Dispute Defense (Chargeback Automation)",
+    "description": "Client files chargeback → Pull evidence from Airtable → Use OpenAI to generate defense → Auto-submit to Stripe",
+    "trigger": "Stripe Webhook (charge.dispute.created)",
+    "frequency": "On webhook event",
+    "modules": [
+      {
+        "id": 1,
+        "name": "Stripe Webhook - Dispute Created",
+        "type": "stripe.watchEvents",
+        "description": "Triggers when a dispute/chargeback is filed",
+        "config": {
+          "eventType": "charge.dispute.created"
+        },
+        "expectedData": {
+          "id": "string - Dispute ID (dp_xxxxx)",
+          "charge": "string - Original charge ID (ch_xxxxx)",
+          "amount": "number - Disputed amount in cents",
+          "reason": "string - Dispute reason code",
+          "evidence_due_by": "number - Unix timestamp",
+          "metadata": {
+            "appointment_id": "string"
+          }
+        }
+      },
+      {
+        "id": 2,
+        "name": "Airtable - Get Appointment",
+        "type": "airtable.searchRecords",
+        "description": "Retrieves the disputed appointment",
+        "config": {
+          "base": "Crowned N Beauty AI - Master",
+          "table": "APPOINTMENTS",
+          "filterFormula": "{Stripe Payment ID} = '{{1.charge}}'",
+          "maxRecords": 1
+        }
+      },
+      {
+        "id": 3,
+        "name": "Airtable - Get Business",
+        "type": "airtable.getRecord",
+        "description": "Retrieves business details",
+        "config": {
+          "base": "Crowned N Beauty AI - Master",
+          "table": "BUSINESSES",
+          "recordId": "{{2.records[0].fields.Business[0]}}"
+        }
+      },
+      {
+        "id": 4,
+        "name": "Airtable - Get Client",
+        "type": "airtable.getRecord",
+        "description": "Retrieves client history",
+        "config": {
+          "base": "Crowned N Beauty AI - Master",
+          "table": "CLIENTS",
+          "recordId": "{{2.records[0].fields.Client[0]}}"
+        }
+      },
+      {
+        "id": 5,
+        "name": "Airtable - Get All Business Policies",
+        "type": "airtable.searchRecords",
+        "description": "Retrieves all active policies for evidence",
+        "config": {
+          "base": "Crowned N Beauty AI - Master",
+          "table": "POLICIES",
+          "filterFormula": "AND(RECORD_ID({Business}) = '{{3.id}}', {Active} = TRUE())",
+          "maxRecords": 10
+        }
+      },
+      {
+        "id": 6,
+        "name": "Airtable - Create Dispute Record",
+        "type": "airtable.createRecord",
+        "description": "Creates tracking record for the dispute",
+        "config": {
+          "base": "Crowned N Beauty AI - Master",
+          "table": "DISPUTES",
+          "fields": {
+            "Business": ["{{3.id}}"],
+            "Client": ["{{4.id}}"],
+            "Appointment": ["{{2.records[0].id}}"],
+            "Dispute Type": "Chargeback",
+            "Stripe Dispute ID": "{{1.id}}",
+            "Stripe Reason Code": "{{1.reason}}",
+            "Dispute Date": "{{now}}",
+            "Evidence Due Date": "{{formatDate(fromUnixTime(1.evidence_due_by), 'YYYY-MM-DD')}}",
+            "Dispute Amount": "{{1.amount / 100}}",
+            "Client Reason": "{{1.reason}}",
+            "Status": "Open"
+          }
+        }
+      },
+      {
+        "id": 7,
+        "name": "Text Aggregator - Compile Evidence",
+        "type": "tools.textAggregator",
+        "description": "Compiles all evidence into a single document",
+        "config": {
+          "template": "EVIDENCE PACKAGE FOR DISPUTE {{1.id}}\n\n==== CLIENT INFORMATION ====\nName: {{4.fields['Full Name']}}\nEmail: {{4.fields.Email}}\nPhone: {{4.fields.Phone}}\nClient Since: {{formatDate(4.fields['Date Added'], 'MMMM YYYY')}}\nTotal Bookings: {{4.fields['Total Bookings']}}\nCompleted Bookings: {{4.fields['Completed Bookings']}}\nNo-Shows: {{4.fields['No-Shows']}}\nTotal Spent: ${{4.fields['Total Spent']}}\nClient Status: {{4.fields['Client Status']}}\n\n==== APPOINTMENT DETAILS ====\nService: {{2.records[0].fields['Service Type']}}\nDescription: {{2.records[0].fields['Service Description']}}\nDate: {{formatDate(2.records[0].fields['Appointment Date'], 'MMMM D, YYYY at h:mm A')}}\nPrice: ${{2.records[0].fields['Service Price']}}\nDeposit: ${{2.records[0].fields['Deposit Amount']}}\nDeposit Paid: {{formatDate(2.records[0].fields['Deposit Paid Date'], 'MMMM D, YYYY')}}\nAppointment Status: {{2.records[0].fields['Appointment Status']}}\nAttendance: {{IF(2.records[0].fields['Attendance Confirmed'], 'Client attended appointment', 'Client did not attend (No-show)')}}\n\n==== PAYMENT RECORDS ====\nStripe Payment ID: {{2.records[0].fields['Stripe Payment ID']}}\nStripe Invoice ID: {{2.records[0].fields['Stripe Invoice ID']}}\nBooking Form Submission: {{2.records[0].fields['Booking Form Response ID']}}\nConfirmation Email Sent: {{IF(2.records[0].fields['Confirmation Sent'], 'Yes', 'No')}}\nReminder Email Sent: {{IF(2.records[0].fields['Reminder Sent'], 'Yes', 'No')}}\n\n==== BUSINESS POLICIES ====\n{{EACH 5.records AS policy}}\n{{policy.fields['Policy Type']}}: {{policy.fields['Policy Text']}}\n{{/EACH}}\n\n==== DISPUTE DETAILS ====\nReason Given: {{1.reason}}\nAmount Disputed: ${{1.amount / 100}}"
+        }
+      },
+      {
+        "id": 8,
+        "name": "OpenAI - Generate Defense Letter",
+        "type": "openai.createChatCompletion",
+        "description": "Uses GPT-4 to generate professional dispute response",
+        "config": {
+          "model": "gpt-4",
+          "messages": [
+            {
+              "role": "system",
+              "content": "You are a professional dispute resolution specialist helping beauty businesses defend against chargebacks. Write a formal, evidence-based response to Stripe disputes that:\n\n1. Remains professional and factual\n2. Cites specific policies the customer agreed to\n3. References payment records and timestamps\n4. Explains the service provided or reason for charge\n5. Demonstrates good-faith business practices\n6. Requests the dispute be decided in the merchant's favor\n\nKeep responses under 1000 characters for Stripe's evidence field. Do not be accusatory toward the customer - focus on facts."
+            },
+            {
+              "role": "user",
+              "content": "Generate a dispute defense response for this chargeback:\n\n{{7.output}}\n\nThe customer claimed: {{1.reason}}\n\nWrite a professional response that cites our documented policies, payment confirmation, and service agreement. Focus on factual evidence that proves the charge was legitimate and the customer was properly informed of all policies."
+            }
+          ],
+          "maxTokens": 500,
+          "temperature": 0.3
+        }
+      },
+      {
+        "id": 9,
+        "name": "Airtable - Save AI Evidence to Dispute",
+        "type": "airtable.updateRecord",
+        "description": "Stores compiled evidence and AI response",
+        "config": {
+          "base": "Crowned N Beauty AI - Master",
+          "table": "DISPUTES",
+          "recordId": "{{6.id}}",
+          "fields": {
+            "Evidence Compiled": "{{7.output}}",
+            "AI Generated Defense": "{{8.choices[0].message.content}}"
+          }
+        }
+      },
+      {
+        "id": 10,
+        "name": "Airtable - Get Cancellation Policy Text",
+        "type": "airtable.searchRecords",
+        "description": "Gets cancellation policy for Stripe evidence",
+        "config": {
+          "base": "Crowned N Beauty AI - Master",
+          "table": "POLICIES",
+          "filterFormula": "AND(RECORD_ID({Business}) = '{{3.id}}', {Policy Type} = 'Cancellation', {Active} = TRUE())",
+          "maxRecords": 1
+        }
+      },
+      {
+        "id": 11,
+        "name": "Stripe - Submit Evidence",
+        "type": "stripe.makeApiCall",
+        "description": "Submits evidence directly to Stripe dispute",
+        "config": {
+          "method": "POST",
+          "url": "https://api.stripe.com/v1/disputes/{{1.id}}",
+          "body": {
+            "evidence[customer_name]": "{{4.fields['Full Name']}}",
+            "evidence[customer_email_address]": "{{4.fields.Email}}",
+            "evidence[receipt]": "{{2.records[0].fields['Stripe Invoice ID']}}",
+            "evidence[customer_signature]": "{{2.records[0].fields['Booking Form Response ID']}}",
+            "evidence[service_documentation]": "{{8.choices[0].message.content}}",
+            "evidence[cancellation_policy]": "{{10.records[0].fields['Policy Text']}}",
+            "evidence[cancellation_policy_disclosure]": "Policy was displayed on booking form and included in confirmation email sent on {{formatDate(2.records[0].fields['Deposit Paid Date'], 'MMMM D, YYYY')}}",
+            "submit": "true"
+          }
+        },
+        "note": "submit=true finalizes the evidence submission"
+      },
+      {
+        "id": 12,
+        "name": "Airtable - Mark Auto-Submitted",
+        "type": "airtable.updateRecord",
+        "description": "Updates dispute record with submission status",
+        "config": {
+          "base": "Crowned N Beauty AI - Master",
+          "table": "DISPUTES",
+          "recordId": "{{6.id}}",
+          "fields": {
+            "Auto-Submitted": true,
+            "Status": "Evidence Submitted",
+            "Submission Date": "{{now}}",
+            "Business Notified": true
+          }
+        }
+      },
+      {
+        "id": 13,
+        "name": "Gmail - Notify Business Owner",
+        "type": "gmail.sendEmail",
+        "description": "Alerts business owner about chargeback and defense",
+        "config": {
+          "to": "{{3.fields['Owner Email']}}",
+          "subject": "⚠️ Chargeback Filed - Auto-Defense Submitted",
+          "body": "Hi {{3.fields['Owner Name']}},\n\nA chargeback was filed for:\n\n• Client: {{4.fields['Full Name']}}\n• Service: {{2.records[0].fields['Service Type']}}\n• Date: {{formatDate(2.records[0].fields['Appointment Date'], 'MMMM D, YYYY')}}\n• Amount: ${{1.amount / 100}}\n• Reason: {{1.reason}}\n\n✅ GOOD NEWS: We've automatically submitted a defense to Stripe with:\n- Your business policies\n- Payment confirmation records\n- Service documentation\n- AI-generated professional response\n\nView dispute in Stripe: https://dashboard.stripe.com/disputes/{{1.id}}\n\nEvidence Due By: {{formatDate(fromUnixTime(1.evidence_due_by), 'MMMM D, YYYY')}}\n\nStripe typically responds within 60-75 days. We'll notify you when there's an update.\n\n- Crowned N Beauty AI System"
+        }
+      }
+    ],
+    "errorHandling": {
+      "onError": "stop",
+      "notifyEmail": "admin@crownednbeauty.com",
+      "note": "Disputes are time-sensitive - manual review needed if automation fails"
+    },
+    "testChecklist": [
+      "Create test dispute in Stripe (use test mode)",
+      "Verify dispute record created in Airtable",
+      "Verify evidence compilation includes all relevant data",
+      "Review AI-generated defense for accuracy and professionalism",
+      "Verify Stripe evidence submitted successfully",
+      "Verify business owner notification email sent",
+      "Check all timestamps and IDs are correctly populated"
+    ],
+    "notes": [
+      "This automation significantly improves chargeback win rates by responding within minutes instead of days",
+      "The AI prompt is designed to be professional and fact-based, never accusatory",
+      "All evidence is sourced directly from Airtable records for accuracy",
+      "Manual review is still recommended for complex disputes"
+    ]
+  }
+}

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Booking Confirmation</title>
+</head>
+<body style="font-family: 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+
+  <!-- Header -->
+  <div style="text-align: center; padding: 20px 0; border-bottom: 3px solid {{brand_color}};">
+    <h1 style="color: {{brand_color}}; margin: 0; font-size: 24px;">{{business_name}}</h1>
+  </div>
+
+  <!-- Main Content -->
+  <div style="padding: 30px 0;">
+    <p style="font-size: 18px; margin-bottom: 20px;">Hi {{client_name}}! 👋</p>
+
+    <p>Great news! Your booking request has been received. To confirm your appointment, please complete your deposit payment below.</p>
+
+    <!-- Appointment Details Box -->
+    <div style="background-color: #f8f9fa; border-radius: 10px; padding: 25px; margin: 25px 0; border-left: 4px solid {{brand_color}};">
+      <h2 style="margin-top: 0; color: #333; font-size: 18px;">📅 Appointment Details</h2>
+      <table style="width: 100%; border-collapse: collapse;">
+        <tr>
+          <td style="padding: 8px 0; color: #666;">Service:</td>
+          <td style="padding: 8px 0; font-weight: bold;">{{service_type}}</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px 0; color: #666;">Date & Time:</td>
+          <td style="padding: 8px 0; font-weight: bold;">{{appointment_datetime}}</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px 0; color: #666;">Location:</td>
+          <td style="padding: 8px 0;">{{business_address}}</td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- Payment Details Box -->
+    <div style="background-color: #fff3cd; border-radius: 10px; padding: 25px; margin: 25px 0;">
+      <h2 style="margin-top: 0; color: #333; font-size: 18px;">💰 Payment Details</h2>
+      <table style="width: 100%; border-collapse: collapse;">
+        <tr>
+          <td style="padding: 8px 0; color: #666;">Service Total:</td>
+          <td style="padding: 8px 0; font-weight: bold;">{{service_price}}</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px 0; color: #666;">Deposit Due Now:</td>
+          <td style="padding: 8px 0; font-weight: bold; color: #d4af37;">{{deposit_amount}}</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px 0; color: #666;">Balance at Appointment:</td>
+          <td style="padding: 8px 0;">{{remaining_balance}}</td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- CTA Button -->
+    <div style="text-align: center; margin: 30px 0;">
+      <a href="{{payment_link}}" style="display: inline-block; background-color: {{brand_color}}; color: white; text-decoration: none; padding: 15px 40px; border-radius: 30px; font-weight: bold; font-size: 16px;">Pay Deposit Now →</a>
+    </div>
+
+    <!-- Policy Section -->
+    <div style="background-color: #f8f9fa; border-radius: 10px; padding: 20px; margin: 25px 0;">
+      <h3 style="margin-top: 0; color: #333; font-size: 16px;">📋 Cancellation Policy</h3>
+      <p style="margin-bottom: 0; color: #666; font-size: 14px;">{{cancellation_policy}}</p>
+    </div>
+
+    <p style="color: #666;">Questions? Reply to this email or call us at {{business_phone}}.</p>
+
+    <p style="margin-top: 30px;">See you soon! ✨</p>
+    <p style="font-weight: bold; color: {{brand_color}};">{{business_name}}</p>
+  </div>
+
+  <!-- Footer -->
+  <div style="text-align: center; padding: 20px; border-top: 1px solid #eee; color: #999; font-size: 12px;">
+    <p>This email was sent by {{business_name}}</p>
+    <p>Powered by Crowned N Beauty AI</p>
+  </div>
+
+</body>
+</html>
+
+<!--
+TEMPLATE METADATA
+================
+Template Name: Booking Confirmation - Payment Required
+Template Type: Booking Confirmation
+Subject Line: 📅 Complete your booking - {{business_name}}
+
+Variables Used:
+- {{client_name}} - Client's full name
+- {{business_name}} - Business name
+- {{brand_color}} - Business brand color (hex)
+- {{service_type}} - Type of service booked
+- {{appointment_datetime}} - Full date and time
+- {{business_address}} - Business location
+- {{service_price}} - Total service cost
+- {{deposit_amount}} - Deposit amount due
+- {{remaining_balance}} - Balance due at appointment
+- {{payment_link}} - Stripe invoice payment link
+- {{cancellation_policy}} - Business cancellation policy text
+- {{business_phone}} - Business phone number
+-->

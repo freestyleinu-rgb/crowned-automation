@@ -1,0 +1,169 @@
+{
+  "scenario": {
+    "name": "Deposit Payment Received",
+    "description": "When client pays deposit → Update Airtable → Send thank you → Add to calendar",
+    "trigger": "Stripe Webhook (invoice.payment_succeeded)",
+    "frequency": "On webhook event",
+    "modules": [
+      {
+        "id": 1,
+        "name": "Stripe Webhook - Payment Succeeded",
+        "type": "stripe.watchEvents",
+        "description": "Triggers when a Stripe invoice payment succeeds",
+        "config": {
+          "eventType": "invoice.payment_succeeded"
+        },
+        "expectedData": {
+          "id": "string - Invoice ID (in_xxxxx)",
+          "amount_paid": "number - Amount in cents",
+          "customer_email": "string - Customer email",
+          "charge": "string - Charge ID (ch_xxxxx)",
+          "metadata": {
+            "business_id": "string",
+            "appointment_id": "string",
+            "client_name": "string"
+          }
+        }
+      },
+      {
+        "id": 2,
+        "name": "Airtable - Get Appointment",
+        "type": "airtable.getRecord",
+        "description": "Retrieves the appointment record using metadata",
+        "config": {
+          "base": "Crowned N Beauty AI - Master",
+          "table": "APPOINTMENTS",
+          "filterFormula": "{Appointment ID} = '{{1.metadata.appointment_id}}'"
+        }
+      },
+      {
+        "id": 3,
+        "name": "Airtable - Update Appointment Payment Status",
+        "type": "airtable.updateRecord",
+        "description": "Marks deposit as paid and stores payment ID",
+        "config": {
+          "base": "Crowned N Beauty AI - Master",
+          "table": "APPOINTMENTS",
+          "recordId": "{{2.id}}",
+          "fields": {
+            "Deposit Status": "Paid",
+            "Deposit Paid Date": "{{now}}",
+            "Stripe Payment ID": "{{1.charge}}"
+          }
+        }
+      },
+      {
+        "id": 4,
+        "name": "Airtable - Get Business",
+        "type": "airtable.getRecord",
+        "description": "Retrieves business details for calendar and email",
+        "config": {
+          "base": "Crowned N Beauty AI - Master",
+          "table": "BUSINESSES",
+          "recordId": "{{2.fields.Business[0]}}"
+        }
+      },
+      {
+        "id": 5,
+        "name": "Airtable - Get Client",
+        "type": "airtable.getRecord",
+        "description": "Retrieves client details",
+        "config": {
+          "base": "Crowned N Beauty AI - Master",
+          "table": "CLIENTS",
+          "recordId": "{{2.fields.Client[0]}}"
+        }
+      },
+      {
+        "id": 6,
+        "name": "Airtable - Get Email Template",
+        "type": "airtable.searchRecords",
+        "description": "Retrieves payment received email template",
+        "config": {
+          "base": "Crowned N Beauty AI - Master",
+          "table": "EMAIL_TEMPLATES",
+          "filterFormula": "AND(OR(RECORD_ID({Business}) = '{{4.id}}', {Business} = BLANK()), {Template Type} = 'Payment Received', {Active} = TRUE())",
+          "maxRecords": 1
+        }
+      },
+      {
+        "id": 7,
+        "name": "Text Parser - Replace Variables",
+        "type": "tools.textParser.replace",
+        "description": "Replaces template variables with actual values",
+        "config": {
+          "text": "{{6.records[0].fields['Email Body']}}",
+          "replacements": {
+            "{{client_name}}": "{{5.fields['Full Name']}}",
+            "{{business_name}}": "{{4.fields['Business Name']}}",
+            "{{service_type}}": "{{2.fields['Service Type']}}",
+            "{{appointment_date}}": "{{formatDate(2.fields['Appointment Date'], 'MMMM D, YYYY at h:mm A')}}",
+            "{{remaining_balance}}": "${{2.fields['Remaining Balance']}}",
+            "{{business_address}}": "{{4.fields['Business Address']}}",
+            "{{business_phone}}": "{{4.fields['Owner Phone']}}"
+          }
+        }
+      },
+      {
+        "id": 8,
+        "name": "Gmail - Send Thank You Email",
+        "type": "gmail.sendEmail",
+        "description": "Sends payment confirmation to client",
+        "config": {
+          "to": "{{5.fields.Email}}",
+          "subject": "✅ Payment received - Your appointment is confirmed",
+          "body": "{{7.output}}",
+          "from": "{{4.fields['Owner Email']}}"
+        }
+      },
+      {
+        "id": 9,
+        "name": "Google Calendar - Create Event",
+        "type": "googleCalendar.createEvent",
+        "description": "Adds appointment to business owner's calendar",
+        "config": {
+          "calendar": "{{4.fields['Owner Email']}}",
+          "summary": "{{2.fields['Service Type']}} - {{5.fields['Full Name']}}",
+          "startDateTime": "{{2.fields['Appointment Date']}}",
+          "duration": "{{2.fields['Duration (hours)']}} hours",
+          "description": "Client: {{5.fields['Full Name']}}\nPhone: {{5.fields.Phone}}\nEmail: {{5.fields.Email}}\n\nService: {{2.fields['Service Type']}}\nPrice: ${{2.fields['Service Price']}}\nDeposit Paid: ${{2.fields['Deposit Amount']}}\nBalance Due: ${{2.fields['Remaining Balance']}}\n\nNotes: {{2.fields['Service Description']}}",
+          "attendees": ["{{5.fields.Email}}"],
+          "reminders": {
+            "useDefault": false,
+            "overrides": [
+              { "method": "email", "minutes": 1440 },
+              { "method": "popup", "minutes": 60 }
+            ]
+          }
+        }
+      },
+      {
+        "id": 10,
+        "name": "Airtable - Update Appointment with Calendar Link",
+        "type": "airtable.updateRecord",
+        "description": "Stores Google Calendar event ID and link",
+        "config": {
+          "base": "Crowned N Beauty AI - Master",
+          "table": "APPOINTMENTS",
+          "recordId": "{{2.id}}",
+          "fields": {
+            "Google Calendar Event ID": "{{9.id}}",
+            "Google Calendar Link": "{{9.htmlLink}}"
+          }
+        }
+      }
+    ],
+    "errorHandling": {
+      "onError": "continue",
+      "notifyEmail": "admin@crownednbeauty.com"
+    },
+    "testChecklist": [
+      "Make test payment through Stripe invoice link",
+      "Verify appointment Deposit Status updated to 'Paid'",
+      "Verify Deposit Paid Date and Stripe Payment ID stored",
+      "Check thank you email received by client",
+      "Verify Google Calendar event created",
+      "Confirm calendar invite sent to client email"
+    ]
+  }
+}
