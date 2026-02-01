@@ -1,0 +1,333 @@
+{
+  "tableName": "APPOINTMENTS",
+  "tableIcon": "calendar",
+  "description": "All appointment bookings with payment tracking, status, and policy enforcement",
+  "fields": [
+    {
+      "name": "Appointment ID",
+      "type": "autoNumber",
+      "description": "Unique identifier for each appointment"
+    },
+    {
+      "name": "Business",
+      "type": "linkedRecord",
+      "options": {
+        "linkedTableName": "BUSINESSES",
+        "prefersSingleRecordLink": true,
+        "inverseLinkFieldName": "Appointments"
+      },
+      "required": true,
+      "description": "Which business this appointment belongs to"
+    },
+    {
+      "name": "Client",
+      "type": "linkedRecord",
+      "options": {
+        "linkedTableName": "CLIENTS",
+        "prefersSingleRecordLink": true,
+        "inverseLinkFieldName": "Appointments"
+      },
+      "required": true,
+      "description": "Which client booked this appointment"
+    },
+    {
+      "name": "Service Type",
+      "type": "singleLineText",
+      "required": true,
+      "description": "Type of service (Hair/Lashes/Nails/etc)"
+    },
+    {
+      "name": "Service Description",
+      "type": "multilineText",
+      "description": "Detailed service notes from booking form"
+    },
+    {
+      "name": "Appointment Date",
+      "type": "dateTime",
+      "options": {
+        "dateFormat": { "name": "local" },
+        "timeFormat": { "name": "12hour" },
+        "timeZone": "client"
+      },
+      "required": true,
+      "description": "Scheduled date and time"
+    },
+    {
+      "name": "Duration (hours)",
+      "type": "number",
+      "options": {
+        "precision": 1
+      },
+      "description": "Expected service length in hours"
+    },
+    {
+      "name": "Service Price",
+      "type": "currency",
+      "options": {
+        "precision": 2,
+        "symbol": "$"
+      },
+      "required": true,
+      "description": "Full service cost"
+    },
+    {
+      "name": "Deposit %",
+      "type": "number",
+      "options": {
+        "precision": 0
+      },
+      "description": "Percentage required as deposit (e.g., 50)"
+    },
+    {
+      "name": "Deposit Amount",
+      "type": "formula",
+      "options": {
+        "formula": "ROUND({Service Price} * ({Deposit %} / 100), 2)"
+      },
+      "description": "Auto-calculated deposit amount"
+    },
+    {
+      "name": "Remaining Balance",
+      "type": "formula",
+      "options": {
+        "formula": "{Service Price} - {Deposit Amount}"
+      },
+      "description": "Amount due at appointment"
+    },
+    {
+      "name": "Deposit Status",
+      "type": "singleSelect",
+      "options": {
+        "choices": [
+          { "name": "Pending", "color": "yellowLight2" },
+          { "name": "Paid", "color": "greenLight2" },
+          { "name": "Refunded", "color": "blueLight2" },
+          { "name": "Forfeited", "color": "redLight2" },
+          { "name": "Partial Refund", "color": "orangeLight2" }
+        ]
+      },
+      "description": "Payment status of the deposit"
+    },
+    {
+      "name": "Deposit Paid Date",
+      "type": "date",
+      "options": {
+        "dateFormat": { "name": "local" }
+      },
+      "description": "When deposit payment was received"
+    },
+    {
+      "name": "Stripe Payment ID",
+      "type": "singleLineText",
+      "description": "Stripe payment intent or charge ID (pi_xxx or ch_xxx)"
+    },
+    {
+      "name": "Stripe Invoice ID",
+      "type": "singleLineText",
+      "description": "Stripe invoice ID (in_xxx)"
+    },
+    {
+      "name": "Appointment Status",
+      "type": "singleSelect",
+      "options": {
+        "choices": [
+          { "name": "Scheduled", "color": "blueLight2" },
+          { "name": "Completed", "color": "greenLight2" },
+          { "name": "Cancelled", "color": "yellowLight2" },
+          { "name": "No-Show", "color": "redLight2" },
+          { "name": "Rescheduled", "color": "purpleLight2" }
+        ]
+      },
+      "description": "Current appointment state"
+    },
+    {
+      "name": "Attendance Confirmed",
+      "type": "checkbox",
+      "description": "Checked when client arrives for appointment"
+    },
+    {
+      "name": "Cancellation Date",
+      "type": "dateTime",
+      "options": {
+        "dateFormat": { "name": "local" },
+        "timeFormat": { "name": "12hour" }
+      },
+      "description": "When cancellation was requested"
+    },
+    {
+      "name": "Cancellation Reason",
+      "type": "multilineText",
+      "description": "Client's explanation for cancelling"
+    },
+    {
+      "name": "Hours Before Cancellation",
+      "type": "formula",
+      "options": {
+        "formula": "IF({Cancellation Date}, DATETIME_DIFF({Appointment Date}, {Cancellation Date}, 'hours'), 0)"
+      },
+      "description": "Hours notice given before appointment (for policy enforcement)"
+    },
+    {
+      "name": "Refund Eligible?",
+      "type": "formula",
+      "options": {
+        "formula": "IF(AND({Appointment Status} = 'Cancelled', {Hours Before Cancellation} >= 48), '✅ Yes - Full Refund', IF(AND({Appointment Status} = 'Cancelled', {Hours Before Cancellation} >= 24, {Hours Before Cancellation} < 48), '⚠️ Partial - 50% Refund', IF({Appointment Status} = 'Cancelled', '❌ No - Deposit Forfeited', '')))"
+      },
+      "description": "Auto-calculated refund eligibility based on cancellation timing"
+    },
+    {
+      "name": "Refund Amount",
+      "type": "formula",
+      "options": {
+        "formula": "IF({Refund Eligible?} = '✅ Yes - Full Refund', {Deposit Amount}, IF({Refund Eligible?} = '⚠️ Partial - 50% Refund', ROUND({Deposit Amount} * 0.5, 2), 0))"
+      },
+      "description": "Auto-calculated refund amount"
+    },
+    {
+      "name": "Total Paid",
+      "type": "currency",
+      "options": {
+        "precision": 2,
+        "symbol": "$"
+      },
+      "description": "Total amount paid (deposit + balance if completed)"
+    },
+    {
+      "name": "Booking Form Response ID",
+      "type": "singleLineText",
+      "description": "Tally form submission ID for reference"
+    },
+    {
+      "name": "Confirmation Sent",
+      "type": "checkbox",
+      "description": "Booking confirmation email sent"
+    },
+    {
+      "name": "Reminder Sent",
+      "type": "checkbox",
+      "description": "24-hour reminder email sent"
+    },
+    {
+      "name": "Google Calendar Event ID",
+      "type": "singleLineText",
+      "description": "Linked Google Calendar event ID"
+    },
+    {
+      "name": "Google Calendar Link",
+      "type": "url",
+      "description": "Direct link to calendar event"
+    },
+    {
+      "name": "Disputes",
+      "type": "linkedRecord",
+      "options": {
+        "linkedTableName": "DISPUTES",
+        "prefersSingleRecordLink": false,
+        "inverseLinkFieldName": "Appointment"
+      },
+      "description": "Any disputes related to this appointment"
+    },
+    {
+      "name": "Created Time",
+      "type": "createdTime",
+      "description": "When this record was created"
+    },
+    {
+      "name": "Last Modified",
+      "type": "lastModifiedTime",
+      "description": "When this record was last updated"
+    },
+    {
+      "name": "Notes",
+      "type": "multilineText",
+      "description": "Internal notes about this appointment"
+    }
+  ],
+  "views": [
+    {
+      "name": "All Appointments",
+      "type": "grid",
+      "description": "Default view showing all appointments"
+    },
+    {
+      "name": "Upcoming Calendar",
+      "type": "calendar",
+      "options": {
+        "dateField": "Appointment Date"
+      },
+      "filter": {
+        "formulaValue": "AND({Appointment Status} = 'Scheduled', IS_AFTER({Appointment Date}, NOW()))"
+      },
+      "description": "Calendar view of scheduled appointments"
+    },
+    {
+      "name": "Pending Deposits",
+      "type": "grid",
+      "filter": {
+        "field": "Deposit Status",
+        "operator": "=",
+        "value": "Pending"
+      },
+      "description": "Awaiting payment"
+    },
+    {
+      "name": "No-Shows",
+      "type": "grid",
+      "filter": {
+        "field": "Appointment Status",
+        "operator": "=",
+        "value": "No-Show"
+      },
+      "color": "red",
+      "description": "Appointments marked as no-show"
+    },
+    {
+      "name": "Cancellations",
+      "type": "grid",
+      "filter": {
+        "field": "Appointment Status",
+        "operator": "=",
+        "value": "Cancelled"
+      },
+      "description": "Cancelled appointments"
+    },
+    {
+      "name": "This Week",
+      "type": "grid",
+      "filter": {
+        "formulaValue": "AND(IS_AFTER({Appointment Date}, DATEADD(TODAY(), -1, 'days')), IS_BEFORE({Appointment Date}, DATEADD(TODAY(), 7, 'days')))"
+      },
+      "description": "Appointments in the next 7 days"
+    },
+    {
+      "name": "By Business",
+      "type": "grid",
+      "groupBy": "Business",
+      "description": "Grouped by business"
+    },
+    {
+      "name": "By Status",
+      "type": "grid",
+      "groupBy": "Appointment Status",
+      "description": "Grouped by appointment status"
+    },
+    {
+      "name": "Needs Reminder",
+      "type": "grid",
+      "filter": {
+        "formulaValue": "AND({Appointment Status} = 'Scheduled', {Deposit Status} = 'Paid', {Reminder Sent} = FALSE(), DATETIME_DIFF({Appointment Date}, NOW(), 'hours') <= 24, DATETIME_DIFF({Appointment Date}, NOW(), 'hours') > 0)"
+      },
+      "description": "Appointments needing 24hr reminder"
+    },
+    {
+      "name": "Completed",
+      "type": "grid",
+      "filter": {
+        "field": "Appointment Status",
+        "operator": "=",
+        "value": "Completed"
+      },
+      "description": "Successfully completed appointments"
+    }
+  ]
+}

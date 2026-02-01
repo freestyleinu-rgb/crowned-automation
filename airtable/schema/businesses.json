@@ -1,0 +1,298 @@
+{
+  "tableName": "BUSINESSES",
+  "tableIcon": "building",
+  "description": "Multi-tenant business management - each record represents a client business",
+  "fields": [
+    {
+      "name": "Business ID",
+      "type": "autoNumber",
+      "description": "Unique identifier for each business"
+    },
+    {
+      "name": "Business Name",
+      "type": "singleLineText",
+      "description": "Legal/DBA name of the business",
+      "required": true
+    },
+    {
+      "name": "Owner Name",
+      "type": "singleLineText",
+      "description": "Primary contact person",
+      "required": true
+    },
+    {
+      "name": "Owner Email",
+      "type": "email",
+      "description": "Primary contact email",
+      "required": true
+    },
+    {
+      "name": "Owner Phone",
+      "type": "phoneNumber",
+      "description": "Contact number"
+    },
+    {
+      "name": "Business Address",
+      "type": "singleLineText",
+      "description": "Physical location for appointments"
+    },
+    {
+      "name": "Stripe Connect ID",
+      "type": "singleLineText",
+      "description": "Stripe Connect account ID (acct_xxxxx format)"
+    },
+    {
+      "name": "Subscription Tier",
+      "type": "singleSelect",
+      "options": {
+        "choices": [
+          { "name": "Starter", "color": "greenLight2" },
+          { "name": "Pro", "color": "blueLight2" },
+          { "name": "Elite", "color": "purpleLight2" }
+        ]
+      },
+      "description": "Current subscription plan"
+    },
+    {
+      "name": "MRR",
+      "type": "currency",
+      "options": {
+        "precision": 2,
+        "symbol": "$"
+      },
+      "description": "Monthly recurring revenue from this client"
+    },
+    {
+      "name": "Status",
+      "type": "singleSelect",
+      "options": {
+        "choices": [
+          { "name": "Active", "color": "greenLight2" },
+          { "name": "Paused", "color": "yellowLight2" },
+          { "name": "Churned", "color": "redLight2" }
+        ]
+      },
+      "description": "Account status"
+    },
+    {
+      "name": "Onboarding Date",
+      "type": "date",
+      "options": {
+        "dateFormat": { "name": "local" }
+      },
+      "description": "When setup was completed"
+    },
+    {
+      "name": "Business Type",
+      "type": "singleSelect",
+      "options": {
+        "choices": [
+          { "name": "Hair Salon", "color": "pinkLight2" },
+          { "name": "Lash Studio", "color": "purpleLight2" },
+          { "name": "Nail Tech", "color": "redLight2" },
+          { "name": "Esthetician", "color": "cyanLight2" },
+          { "name": "Mobile Pro", "color": "tealLight2" },
+          { "name": "Barber", "color": "blueLight2" },
+          { "name": "Makeup Artist", "color": "orangeLight2" },
+          { "name": "Other", "color": "grayLight2" }
+        ]
+      },
+      "description": "Industry segment for categorization"
+    },
+    {
+      "name": "Default Deposit %",
+      "type": "number",
+      "options": {
+        "precision": 0
+      },
+      "description": "Default deposit percentage for quotes (e.g., 50)"
+    },
+    {
+      "name": "Cancellation Window",
+      "type": "number",
+      "options": {
+        "precision": 0
+      },
+      "description": "Hours before appointment for full refund eligibility"
+    },
+    {
+      "name": "No-Show Policy",
+      "type": "multilineText",
+      "description": "Written policy text for no-shows"
+    },
+    {
+      "name": "Timezone",
+      "type": "singleSelect",
+      "options": {
+        "choices": [
+          { "name": "PST", "color": "blueLight2" },
+          { "name": "MST", "color": "cyanLight2" },
+          { "name": "CST", "color": "greenLight2" },
+          { "name": "EST", "color": "purpleLight2" },
+          { "name": "HST", "color": "tealLight2" },
+          { "name": "AKST", "color": "grayLight2" }
+        ]
+      },
+      "description": "Business timezone for scheduling"
+    },
+    {
+      "name": "Booking Form URL",
+      "type": "url",
+      "description": "Tally form link for client bookings"
+    },
+    {
+      "name": "Cancellation Form URL",
+      "type": "url",
+      "description": "Tally form link for cancellation requests"
+    },
+    {
+      "name": "Admin Dashboard URL",
+      "type": "url",
+      "description": "Softr dashboard link (Pro/Elite tiers)"
+    },
+    {
+      "name": "Logo URL",
+      "type": "url",
+      "description": "Business logo for branded emails"
+    },
+    {
+      "name": "Brand Color",
+      "type": "singleLineText",
+      "description": "Hex color code for branding (e.g., #D4AF37)"
+    },
+    {
+      "name": "Clients",
+      "type": "linkedRecord",
+      "options": {
+        "linkedTableName": "CLIENTS",
+        "prefersSingleRecordLink": false,
+        "inverseLinkFieldName": "Business"
+      },
+      "description": "Linked client records"
+    },
+    {
+      "name": "Appointments",
+      "type": "linkedRecord",
+      "options": {
+        "linkedTableName": "APPOINTMENTS",
+        "prefersSingleRecordLink": false,
+        "inverseLinkFieldName": "Business"
+      },
+      "description": "Linked appointment records"
+    },
+    {
+      "name": "Policies",
+      "type": "linkedRecord",
+      "options": {
+        "linkedTableName": "POLICIES",
+        "prefersSingleRecordLink": false,
+        "inverseLinkFieldName": "Business"
+      },
+      "description": "Linked policy records"
+    },
+    {
+      "name": "Disputes",
+      "type": "linkedRecord",
+      "options": {
+        "linkedTableName": "DISPUTES",
+        "prefersSingleRecordLink": false,
+        "inverseLinkFieldName": "Business"
+      },
+      "description": "Linked dispute records"
+    },
+    {
+      "name": "Email Templates",
+      "type": "linkedRecord",
+      "options": {
+        "linkedTableName": "EMAIL_TEMPLATES",
+        "prefersSingleRecordLink": false,
+        "inverseLinkFieldName": "Business"
+      },
+      "description": "Linked email template records"
+    },
+    {
+      "name": "Total Clients",
+      "type": "count",
+      "options": {
+        "recordLinkFieldName": "Clients"
+      },
+      "description": "Auto-count of linked clients"
+    },
+    {
+      "name": "Total Appointments",
+      "type": "count",
+      "options": {
+        "recordLinkFieldName": "Appointments"
+      },
+      "description": "Auto-count of linked appointments"
+    },
+    {
+      "name": "Total Revenue",
+      "type": "rollup",
+      "options": {
+        "recordLinkFieldName": "Appointments",
+        "fieldIdInLinkedTable": "Deposit Amount",
+        "formula": "SUM(values)"
+      },
+      "description": "Sum of all deposit amounts (lifetime value)"
+    },
+    {
+      "name": "Last Activity",
+      "type": "lastModifiedTime",
+      "description": "Tracks account health via last modification"
+    },
+    {
+      "name": "Notes",
+      "type": "multilineText",
+      "description": "Internal notes about the business"
+    }
+  ],
+  "views": [
+    {
+      "name": "All Businesses",
+      "type": "grid",
+      "description": "Default view showing all business records"
+    },
+    {
+      "name": "Active Accounts",
+      "type": "grid",
+      "filter": {
+        "field": "Status",
+        "operator": "=",
+        "value": "Active"
+      },
+      "description": "Only active accounts"
+    },
+    {
+      "name": "High Value Clients",
+      "type": "grid",
+      "sort": {
+        "field": "Total Revenue",
+        "direction": "desc"
+      },
+      "description": "Sorted by lifetime revenue"
+    },
+    {
+      "name": "Churned Accounts",
+      "type": "grid",
+      "filter": {
+        "field": "Status",
+        "operator": "=",
+        "value": "Churned"
+      },
+      "description": "Accounts that have canceled"
+    },
+    {
+      "name": "By Tier",
+      "type": "grid",
+      "groupBy": "Subscription Tier",
+      "description": "Grouped by subscription level"
+    },
+    {
+      "name": "By Business Type",
+      "type": "grid",
+      "groupBy": "Business Type",
+      "description": "Grouped by industry segment"
+    }
+  ]
+}

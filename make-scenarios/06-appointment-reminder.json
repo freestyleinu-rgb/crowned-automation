@@ -1,0 +1,144 @@
+{
+  "scenario": {
+    "name": "24-Hour Appointment Reminder",
+    "description": "Scheduled check for appointments happening in 24 hours → Send reminder email",
+    "trigger": "Schedule (every 6 hours)",
+    "frequency": "Every 6 hours",
+    "modules": [
+      {
+        "id": 1,
+        "name": "Schedule Trigger",
+        "type": "tools.schedule",
+        "description": "Runs every 6 hours to catch all upcoming appointments",
+        "config": {
+          "frequency": "every 6 hours",
+          "startTime": "06:00"
+        },
+        "note": "Running every 6 hours ensures reminders go out at a reasonable time regardless of appointment time"
+      },
+      {
+        "id": 2,
+        "name": "Airtable - Find Upcoming Appointments",
+        "type": "airtable.searchRecords",
+        "description": "Searches for appointments needing reminders",
+        "config": {
+          "base": "Crowned N Beauty AI - Master",
+          "table": "APPOINTMENTS",
+          "filterFormula": "AND({Appointment Status} = 'Scheduled', {Deposit Status} = 'Paid', {Reminder Sent} = FALSE(), IS_AFTER({Appointment Date}, NOW()), DATETIME_DIFF({Appointment Date}, NOW(), 'hours') <= 24, DATETIME_DIFF({Appointment Date}, NOW(), 'hours') > 18)",
+          "maxRecords": 100
+        },
+        "note": "18-24 hour window ensures reminder goes out approximately 24 hours before, not multiple times"
+      },
+      {
+        "id": 3,
+        "name": "Iterator",
+        "type": "flow.iterator",
+        "description": "Loops through each appointment needing a reminder",
+        "config": {
+          "array": "{{2.records}}"
+        }
+      },
+      {
+        "id": 4,
+        "name": "Airtable - Get Business",
+        "type": "airtable.getRecord",
+        "description": "Retrieves business details for branding",
+        "config": {
+          "base": "Crowned N Beauty AI - Master",
+          "table": "BUSINESSES",
+          "recordId": "{{3.fields.Business[0]}}"
+        }
+      },
+      {
+        "id": 5,
+        "name": "Airtable - Get Client",
+        "type": "airtable.getRecord",
+        "description": "Retrieves client contact info",
+        "config": {
+          "base": "Crowned N Beauty AI - Master",
+          "table": "CLIENTS",
+          "recordId": "{{3.fields.Client[0]}}"
+        }
+      },
+      {
+        "id": 6,
+        "name": "Airtable - Get Email Template",
+        "type": "airtable.searchRecords",
+        "description": "Retrieves appointment reminder template",
+        "config": {
+          "base": "Crowned N Beauty AI - Master",
+          "table": "EMAIL_TEMPLATES",
+          "filterFormula": "AND(OR(RECORD_ID({Business}) = '{{4.id}}', {Business} = BLANK()), {Template Type} = 'Appointment Reminder', {Active} = TRUE())",
+          "maxRecords": 1,
+          "sort": [
+            {
+              "field": "Business",
+              "direction": "desc"
+            }
+          ]
+        }
+      },
+      {
+        "id": 7,
+        "name": "Text Parser - Replace Variables",
+        "type": "tools.textParser.replace",
+        "description": "Replaces template variables",
+        "config": {
+          "text": "{{6.records[0].fields['Email Body']}}",
+          "replacements": {
+            "{{client_name}}": "{{5.fields['Full Name']}}",
+            "{{client_first_name}}": "{{split(5.fields['Full Name'], ' ')[0]}}",
+            "{{business_name}}": "{{4.fields['Business Name']}}",
+            "{{service_type}}": "{{3.fields['Service Type']}}",
+            "{{appointment_date}}": "{{formatDate(3.fields['Appointment Date'], 'MMMM D, YYYY')}}",
+            "{{appointment_time}}": "{{formatDate(3.fields['Appointment Date'], 'h:mm A')}}",
+            "{{appointment_datetime}}": "{{formatDate(3.fields['Appointment Date'], 'MMMM D, YYYY at h:mm A')}}",
+            "{{remaining_balance}}": "${{3.fields['Remaining Balance']}}",
+            "{{business_address}}": "{{4.fields['Business Address']}}",
+            "{{business_phone}}": "{{4.fields['Owner Phone']}}",
+            "{{cancellation_form_url}}": "{{4.fields['Cancellation Form URL']}}"
+          }
+        }
+      },
+      {
+        "id": 8,
+        "name": "Gmail - Send Reminder Email",
+        "type": "gmail.sendEmail",
+        "description": "Sends 24-hour reminder to client",
+        "config": {
+          "to": "{{5.fields.Email}}",
+          "subject": "{{6.records[0].fields['Subject Line']}}",
+          "body": "{{7.output}}",
+          "from": "{{4.fields['Owner Email']}}"
+        }
+      },
+      {
+        "id": 9,
+        "name": "Airtable - Mark Reminder Sent",
+        "type": "airtable.updateRecord",
+        "description": "Updates appointment to prevent duplicate reminders",
+        "config": {
+          "base": "Crowned N Beauty AI - Master",
+          "table": "APPOINTMENTS",
+          "recordId": "{{3.id}}",
+          "fields": {
+            "Reminder Sent": true
+          }
+        }
+      }
+    ],
+    "errorHandling": {
+      "onError": "continue",
+      "notifyEmail": "admin@crownednbeauty.com"
+    },
+    "testChecklist": [
+      "Create test appointment 20-24 hours in the future",
+      "Ensure Deposit Status is Paid",
+      "Ensure Reminder Sent is unchecked",
+      "Run scenario manually",
+      "Verify reminder email sent to client",
+      "Verify Reminder Sent checkbox is now checked",
+      "Verify scenario doesn't send duplicate reminders on next run"
+    ]
+  }
+}

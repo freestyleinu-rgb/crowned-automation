@@ -1,0 +1,124 @@
+{
+  "records": [
+    {
+      "fields": {
+        "Business Name": "Crowned Creations Studio",
+        "Owner Name": "Nicole Thompson",
+        "Owner Email": "nicole@crownedcreations.com",
+        "Owner Phone": "(702) 555-1234",
+        "Business Address": "3500 Las Vegas Blvd S, Suite 120, Las Vegas, NV 89109",
+        "Stripe Connect ID": "acct_1234567890abc",
+        "Subscription Tier": "Pro",
+        "MRR": 79,
+        "Status": "Active",
+        "Onboarding Date": "2026-01-15",
+        "Business Type": "Hair Salon",
+        "Default Deposit %": 50,
+        "Cancellation Window": 48,
+        "No-Show Policy": "Failure to show for your appointment without notice results in forfeiture of your deposit. Two or more no-shows may result in booking restrictions.",
+        "Timezone": "PST",
+        "Booking Form URL": "https://tally.so/r/crowned-creations-booking",
+        "Cancellation Form URL": "https://tally.so/r/crowned-creations-cancel",
+        "Logo URL": "https://example.com/logos/crowned-creations.png",
+        "Brand Color": "#D4AF37",
+        "Notes": "Premium client - VIP support. Specializes in custom wigs and protective styles."
+      }
+    },
+    {
+      "fields": {
+        "Business Name": "Lash Queen Studio",
+        "Owner Name": "Jasmine Williams",
+        "Owner Email": "jasmine@lashqueenstudio.com",
+        "Owner Phone": "(702) 555-5678",
+        "Business Address": "2000 Fashion Show Drive, Las Vegas, NV 89109",
+        "Stripe Connect ID": "acct_0987654321xyz",
+        "Subscription Tier": "Elite",
+        "MRR": 149,
+        "Status": "Active",
+        "Onboarding Date": "2026-01-08",
+        "Business Type": "Lash Studio",
+        "Default Deposit %": 50,
+        "Cancellation Window": 24,
+        "No-Show Policy": "No-shows result in full deposit forfeiture. Clients with 2+ no-shows will require full payment upfront.",
+        "Timezone": "PST",
+        "Booking Form URL": "https://tally.so/r/lash-queen-booking",
+        "Cancellation Form URL": "https://tally.so/r/lash-queen-cancel",
+        "Logo URL": "https://example.com/logos/lash-queen.png",
+        "Brand Color": "#FF69B4",
+        "Notes": "High volume business - 50+ appointments/week. Uses Elite dashboard extensively."
+      }
+    },
+    {
+      "fields": {
+        "Business Name": "Nailed It Beauty Bar",
+        "Owner Name": "Maria Santos",
+        "Owner Email": "maria@naileditbeauty.com",
+        "Owner Phone": "(702) 555-9012",
+        "Business Address": "1234 Spring Mountain Rd, Las Vegas, NV 89102",
+        "Stripe Connect ID": "acct_5555666677778888",
+        "Subscription Tier": "Starter",
+        "MRR": 39,
+        "Status": "Active",
+        "Onboarding Date": "2026-01-22",
+        "Business Type": "Nail Tech",
+        "Default Deposit %": 30,
+        "Cancellation Window": 24,
+        "No-Show Policy": "No-show appointments forfeit the deposit. Please give us 24 hours notice if you need to cancel.",
+        "Timezone": "PST",
+        "Booking Form URL": "https://tally.so/r/nailed-it-booking",
+        "Cancellation Form URL": "https://tally.so/r/nailed-it-cancel",
+        "Logo URL": "https://example.com/logos/nailed-it.png",
+        "Brand Color": "#9B59B6",
+        "Notes": "New client - onboarding recently. Mobile nail tech, does house calls."
+      }
+    },
+    {
+      "fields": {
+        "Business Name": "Glow Up Esthetics",
+        "Owner Name": "Ashley Chen",
+        "Owner Email": "ashley@glowupesthetics.com",
+        "Owner Phone": "(702) 555-3456",
+        "Business Address": "5678 Sahara Ave, Suite 200, Las Vegas, NV 89104",
+        "Stripe Connect ID": "acct_9999888877776666",
+        "Subscription Tier": "Pro",
+        "MRR": 79,
+        "Status": "Active",
+        "Onboarding Date": "2026-01-10",
+        "Business Type": "Esthetician",
+        "Default Deposit %": 50,
+        "Cancellation Window": 48,
+        "No-Show Policy": "No-shows will be charged the full service amount. We require 48 hours notice for cancellations to receive a full refund.",
+        "Timezone": "PST",
+        "Booking Form URL": "https://tally.so/r/glow-up-booking",
+        "Cancellation Form URL": "https://tally.so/r/glow-up-cancel",
+        "Logo URL": "https://example.com/logos/glow-up.png",
+        "Brand Color": "#20B2AA",
+        "Notes": "Facial specialist. High-end clientele. Charges remaining balance for no-shows."
+      }
+    },
+    {
+      "fields": {
+        "Business Name": "Mobile Glam Squad",
+        "Owner Name": "Destiny Jackson",
+        "Owner Email": "destiny@mobileglamsquad.com",
+        "Owner Phone": "(702) 555-7890",
+        "Business Address": "Mobile Service - Las Vegas Metro Area",
+        "Stripe Connect ID": "acct_1111222233334444",
+        "Subscription Tier": "Pro",
+        "MRR": 79,
+        "Status": "Active",
+        "Onboarding Date": "2026-01-18",
+        "Business Type": "Mobile Pro",
+        "Default Deposit %": 75,
+        "Cancellation Window": 72,
+        "No-Show Policy": "Due to travel time and preparation, no-shows forfeit the full deposit. 72-hour cancellation notice required for full refund.",
+        "Timezone": "PST",
+        "Booking Form URL": "https://tally.so/r/mobile-glam-booking",
+        "Cancellation Form URL": "https://tally.so/r/mobile-glam-cancel",
+        "Logo URL": "https://example.com/logos/mobile-glam.png",
+        "Brand Color": "#FFD700",
+        "Notes": "Bridal and event specialist. Requires higher deposit due to travel. Services hotels and homes."
+      }
+    }
+  ]
+}

@@ -1,0 +1,226 @@
+{
+  "records": [
+    {
+      "fields": {
+        "Business": "Crowned Creations Studio",
+        "Client": "Jessica Martinez",
+        "Service Type": "Custom Wig Installation",
+        "Service Description": "Full lace wig, 22 inches, natural black, HD lace front",
+        "Appointment Date": "2026-02-15T10:00:00",
+        "Duration (hours)": 3,
+        "Service Price": 400,
+        "Deposit %": 50,
+        "Deposit Status": "Paid",
+        "Deposit Paid Date": "2026-02-01",
+        "Stripe Payment ID": "pi_1234567890abcdef",
+        "Stripe Invoice ID": "in_1234567890abcdef",
+        "Appointment Status": "Scheduled",
+        "Attendance Confirmed": false,
+        "Booking Form Response ID": "tally_abc123",
+        "Confirmation Sent": true,
+        "Reminder Sent": false,
+        "Google Calendar Event ID": "gcal_evt_123",
+        "Notes": "Client requested extra baby hairs. Bring edge control."
+      }
+    },
+    {
+      "fields": {
+        "Business": "Crowned Creations Studio",
+        "Client": "Tiffany Johnson",
+        "Service Type": "Silk Press + Trim",
+        "Service Description": "Silk press on natural hair, light trim, deep conditioning treatment",
+        "Appointment Date": "2026-02-10T09:00:00",
+        "Duration (hours)": 2,
+        "Service Price": 150,
+        "Deposit %": 50,
+        "Deposit Status": "Paid",
+        "Deposit Paid Date": "2026-01-25",
+        "Stripe Payment ID": "pi_2345678901bcdefg",
+        "Stripe Invoice ID": "in_2345678901bcdefg",
+        "Appointment Status": "Completed",
+        "Attendance Confirmed": true,
+        "Total Paid": 150,
+        "Booking Form Response ID": "tally_def456",
+        "Confirmation Sent": true,
+        "Reminder Sent": true,
+        "Google Calendar Event ID": "gcal_evt_124",
+        "Notes": "VIP - Complimentary conditioning treatment included."
+      }
+    },
+    {
+      "fields": {
+        "Business": "Crowned Creations Studio",
+        "Client": "Amanda Rodriguez",
+        "Service Type": "Knotless Braids",
+        "Service Description": "Medium-size knotless box braids, waist length, black with burgundy tips",
+        "Appointment Date": "2026-02-20T12:00:00",
+        "Duration (hours)": 6,
+        "Service Price": 350,
+        "Deposit %": 50,
+        "Deposit Status": "Pending",
+        "Appointment Status": "Scheduled",
+        "Attendance Confirmed": false,
+        "Booking Form Response ID": "tally_ghi789",
+        "Confirmation Sent": true,
+        "Reminder Sent": false,
+        "Notes": "First-time braid client. Sent reference photos via Instagram DM."
+      }
+    },
+    {
+      "fields": {
+        "Business": "Crowned Creations Studio",
+        "Client": "Keisha Brown",
+        "Service Type": "Sew-in Weave",
+        "Service Description": "Full sew-in with leave out, body wave bundles",
+        "Appointment Date": "2026-01-28T14:00:00",
+        "Duration (hours)": 4,
+        "Service Price": 300,
+        "Deposit %": 50,
+        "Deposit Status": "Forfeited",
+        "Deposit Paid Date": "2026-01-20",
+        "Stripe Payment ID": "pi_3456789012cdefgh",
+        "Stripe Invoice ID": "in_3456789012cdefgh",
+        "Appointment Status": "No-Show",
+        "Attendance Confirmed": false,
+        "Booking Form Response ID": "tally_jkl012",
+        "Confirmation Sent": true,
+        "Reminder Sent": true,
+        "Notes": "NO SHOW - Third no-show. Client has been blacklisted."
+      }
+    },
+    {
+      "fields": {
+        "Business": "Lash Queen Studio",
+        "Client": "Sarah Thompson",
+        "Service Type": "Volume Lash Full Set",
+        "Service Description": "5D volume lashes, cat eye style, 14mm length",
+        "Appointment Date": "2026-02-08T11:00:00",
+        "Duration (hours)": 2.5,
+        "Service Price": 200,
+        "Deposit %": 50,
+        "Deposit Status": "Paid",
+        "Deposit Paid Date": "2026-01-30",
+        "Stripe Payment ID": "pi_4567890123defghi",
+        "Stripe Invoice ID": "in_4567890123defghi",
+        "Appointment Status": "Completed",
+        "Attendance Confirmed": true,
+        "Total Paid": 200,
+        "Booking Form Response ID": "tally_mno345",
+        "Confirmation Sent": true,
+        "Reminder Sent": true,
+        "Notes": "VIP client. Used sensitive adhesive. Rebooked for fill in 3 weeks."
+      }
+    },
+    {
+      "fields": {
+        "Business": "Lash Queen Studio",
+        "Client": "Emily Davis",
+        "Service Type": "Classic Lash Full Set",
+        "Service Description": "Classic natural lashes, wispy style, mixed lengths",
+        "Appointment Date": "2026-02-12T14:00:00",
+        "Duration (hours)": 2,
+        "Service Price": 150,
+        "Deposit %": 50,
+        "Deposit Status": "Paid",
+        "Deposit Paid Date": "2026-02-05",
+        "Stripe Payment ID": "pi_5678901234efghij",
+        "Stripe Invoice ID": "in_5678901234efghij",
+        "Appointment Status": "Scheduled",
+        "Attendance Confirmed": false,
+        "Booking Form Response ID": "tally_pqr678",
+        "Confirmation Sent": true,
+        "Reminder Sent": false,
+        "Notes": "First-time client - referred by Sarah. Wants natural look for work."
+      }
+    },
+    {
+      "fields": {
+        "Business": "Lash Queen Studio",
+        "Client": "Michelle Kim",
+        "Service Type": "Lash Fill",
+        "Service Description": "2-week hybrid lash fill",
+        "Appointment Date": "2026-02-05T09:00:00",
+        "Duration (hours)": 1,
+        "Service Price": 75,
+        "Deposit %": 50,
+        "Deposit Status": "Refunded",
+        "Deposit Paid Date": "2026-01-28",
+        "Stripe Payment ID": "pi_6789012345fghijk",
+        "Stripe Invoice ID": "in_6789012345fghijk",
+        "Appointment Status": "Cancelled",
+        "Cancellation Date": "2026-02-03T10:00:00",
+        "Cancellation Reason": "Work schedule conflict - need to reschedule to next week",
+        "Booking Form Response ID": "tally_stu901",
+        "Confirmation Sent": true,
+        "Reminder Sent": false,
+        "Notes": "Cancelled with 46 hours notice. Full refund processed. Rescheduled to 2/12."
+      }
+    },
+    {
+      "fields": {
+        "Business": "Glow Up Esthetics",
+        "Client": "Rachel Green",
+        "Service Type": "Signature Facial + Chemical Peel",
+        "Service Description": "60-min signature facial with light glycolic peel, extractions included",
+        "Appointment Date": "2026-02-18T13:00:00",
+        "Duration (hours)": 1.5,
+        "Service Price": 225,
+        "Deposit %": 50,
+        "Deposit Status": "Paid",
+        "Deposit Paid Date": "2026-02-10",
+        "Stripe Payment ID": "pi_7890123456ghijkl",
+        "Stripe Invoice ID": "in_7890123456ghijkl",
+        "Appointment Status": "Scheduled",
+        "Attendance Confirmed": false,
+        "Booking Form Response ID": "tally_vwx234",
+        "Confirmation Sent": true,
+        "Reminder Sent": false,
+        "Notes": "VIP - Monthly appointment. Using new vitamin C serum, patch test done previously."
+      }
+    },
+    {
+      "fields": {
+        "Business": "Mobile Glam Squad",
+        "Client": "Jennifer Lopez",
+        "Service Type": "Bridal Makeup Trial",
+        "Service Description": "Full bridal makeup trial, includes lashes, setting spray. At hotel room.",
+        "Appointment Date": "2026-02-22T10:00:00",
+        "Duration (hours)": 2,
+        "Service Price": 175,
+        "Deposit %": 75,
+        "Deposit Status": "Paid",
+        "Deposit Paid Date": "2026-02-08",
+        "Stripe Payment ID": "pi_8901234567hijklm",
+        "Stripe Invoice ID": "in_8901234567hijklm",
+        "Appointment Status": "Scheduled",
+        "Attendance Confirmed": false,
+        "Booking Form Response ID": "tally_yza567",
+        "Confirmation Sent": true,
+        "Reminder Sent": false,
+        "Notes": "Bridal trial at Wynn hotel, room 2345. Bride wants soft glam, natural but elevated. June wedding day booked for full party."
+      }
+    },
+    {
+      "fields": {
+        "Business": "Nailed It Beauty Bar",
+        "Client": "Crystal Williams",
+        "Service Type": "Acrylic Full Set + Nail Art",
+        "Service Description": "Medium almond shape, nude base with custom nail art (3D flowers)",
+        "Appointment Date": "2026-02-14T15:00:00",
+        "Duration (hours)": 2.5,
+        "Service Price": 120,
+        "Deposit %": 30,
+        "Deposit Status": "Paid",
+        "Deposit Paid Date": "2026-02-07",
+        "Stripe Payment ID": "pi_9012345678ijklmn",
+        "Stripe Invoice ID": "in_9012345678ijklmn",
+        "Appointment Status": "Scheduled",
+        "Attendance Confirmed": false,
+        "Booking Form Response ID": "tally_bcd890",
+        "Confirmation Sent": true,
+        "Reminder Sent": false,
+        "Notes": "Valentine's Day nails! Pinterest board shared. Wants to add charms if time allows."
+      }
+    }
+  ]
+}

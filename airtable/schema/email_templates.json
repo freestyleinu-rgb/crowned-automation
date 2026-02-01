@@ -1,0 +1,199 @@
+{
+  "tableName": "EMAIL_TEMPLATES",
+  "tableIcon": "mail",
+  "description": "Email templates for automated communications with variable substitution",
+  "fields": [
+    {
+      "name": "Template ID",
+      "type": "autoNumber",
+      "description": "Unique identifier for each template"
+    },
+    {
+      "name": "Business",
+      "type": "linkedRecord",
+      "options": {
+        "linkedTableName": "BUSINESSES",
+        "prefersSingleRecordLink": true,
+        "inverseLinkFieldName": "Email Templates"
+      },
+      "description": "Which business (blank = global default template)"
+    },
+    {
+      "name": "Template Name",
+      "type": "singleLineText",
+      "required": true,
+      "description": "Internal reference name"
+    },
+    {
+      "name": "Template Type",
+      "type": "singleSelect",
+      "options": {
+        "choices": [
+          { "name": "Booking Confirmation", "color": "greenLight2" },
+          { "name": "Payment Received", "color": "cyanLight2" },
+          { "name": "Payment Reminder", "color": "yellowLight2" },
+          { "name": "Appointment Reminder", "color": "blueLight2" },
+          { "name": "Cancellation Confirmation", "color": "orangeLight2" },
+          { "name": "No-Show Notice", "color": "redLight2" },
+          { "name": "Reschedule Confirmation", "color": "purpleLight2" },
+          { "name": "Dispute Notification", "color": "redLight2" },
+          { "name": "Welcome Email", "color": "greenLight2" },
+          { "name": "Follow-Up", "color": "tealLight2" },
+          { "name": "Review Request", "color": "pinkLight2" },
+          { "name": "Other", "color": "grayLight2" }
+        ]
+      },
+      "required": true,
+      "description": "Category of email"
+    },
+    {
+      "name": "Subject Line",
+      "type": "singleLineText",
+      "required": true,
+      "description": "Email subject with variable placeholders"
+    },
+    {
+      "name": "Email Body",
+      "type": "multilineText",
+      "required": true,
+      "description": "Email content (HTML or plain text) with variable placeholders"
+    },
+    {
+      "name": "Variables Used",
+      "type": "multilineText",
+      "description": "List of {{variables}} used in this template"
+    },
+    {
+      "name": "Active",
+      "type": "checkbox",
+      "options": {
+        "defaultValue": true
+      },
+      "description": "Whether this template is currently in use"
+    },
+    {
+      "name": "Preview",
+      "type": "button",
+      "options": {
+        "label": "Preview",
+        "action": "openUrl",
+        "url": ""
+      },
+      "description": "Preview button (configure with Softr or external tool)"
+    },
+    {
+      "name": "Created Date",
+      "type": "createdTime",
+      "description": "When template was added"
+    },
+    {
+      "name": "Last Modified",
+      "type": "lastModifiedTime",
+      "description": "When template was last updated"
+    },
+    {
+      "name": "Notes",
+      "type": "multilineText",
+      "description": "Internal notes about this template"
+    }
+  ],
+  "views": [
+    {
+      "name": "All Templates",
+      "type": "grid",
+      "description": "Default view showing all templates"
+    },
+    {
+      "name": "Active Templates",
+      "type": "grid",
+      "filter": {
+        "field": "Active",
+        "operator": "=",
+        "value": true
+      },
+      "description": "Currently active templates"
+    },
+    {
+      "name": "Global Templates",
+      "type": "grid",
+      "filter": {
+        "formulaValue": "{Business} = BLANK()"
+      },
+      "description": "Default templates (no business assigned)"
+    },
+    {
+      "name": "By Business",
+      "type": "grid",
+      "groupBy": "Business",
+      "description": "Grouped by business"
+    },
+    {
+      "name": "By Type",
+      "type": "grid",
+      "groupBy": "Template Type",
+      "description": "Grouped by email category"
+    },
+    {
+      "name": "Confirmation Emails",
+      "type": "grid",
+      "filter": {
+        "formulaValue": "OR({Template Type} = 'Booking Confirmation', {Template Type} = 'Payment Received')"
+      },
+      "description": "Booking and payment confirmations"
+    },
+    {
+      "name": "Reminder Emails",
+      "type": "grid",
+      "filter": {
+        "formulaValue": "OR({Template Type} = 'Payment Reminder', {Template Type} = 'Appointment Reminder')"
+      },
+      "description": "All reminder templates"
+    }
+  ],
+  "availableVariables": {
+    "client": [
+      "{{client_name}}",
+      "{{client_email}}",
+      "{{client_phone}}",
+      "{{client_first_name}}"
+    ],
+    "business": [
+      "{{business_name}}",
+      "{{business_email}}",
+      "{{business_phone}}",
+      "{{business_address}}",
+      "{{booking_form_url}}",
+      "{{cancellation_form_url}}",
+      "{{business_logo_url}}",
+      "{{brand_color}}"
+    ],
+    "appointment": [
+      "{{service_type}}",
+      "{{service_description}}",
+      "{{appointment_date}}",
+      "{{appointment_time}}",
+      "{{appointment_datetime}}",
+      "{{duration}}",
+      "{{service_price}}",
+      "{{deposit_amount}}",
+      "{{remaining_balance}}",
+      "{{deposit_percent}}"
+    ],
+    "payment": [
+      "{{payment_link}}",
+      "{{invoice_url}}",
+      "{{refund_amount}}",
+      "{{payment_status}}"
+    ],
+    "policy": [
+      "{{cancellation_policy}}",
+      "{{deposit_policy}}",
+      "{{no_show_policy}}"
+    ],
+    "other": [
+      "{{current_date}}",
+      "{{calendar_link}}",
+      "{{support_email}}"
+    ]
+  }
+}

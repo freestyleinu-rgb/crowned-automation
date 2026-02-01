@@ -1,0 +1,280 @@
+{
+  "tableName": "DISPUTES",
+  "tableIcon": "warning",
+  "description": "Chargeback and dispute tracking with AI-powered defense automation",
+  "fields": [
+    {
+      "name": "Dispute ID",
+      "type": "autoNumber",
+      "description": "Unique identifier for each dispute"
+    },
+    {
+      "name": "Business",
+      "type": "linkedRecord",
+      "options": {
+        "linkedTableName": "BUSINESSES",
+        "prefersSingleRecordLink": true,
+        "inverseLinkFieldName": "Disputes"
+      },
+      "required": true,
+      "description": "Which business this dispute is against"
+    },
+    {
+      "name": "Client",
+      "type": "linkedRecord",
+      "options": {
+        "linkedTableName": "CLIENTS",
+        "prefersSingleRecordLink": true,
+        "inverseLinkFieldName": "Disputes"
+      },
+      "required": true,
+      "description": "Which client filed the dispute"
+    },
+    {
+      "name": "Appointment",
+      "type": "linkedRecord",
+      "options": {
+        "linkedTableName": "APPOINTMENTS",
+        "prefersSingleRecordLink": true,
+        "inverseLinkFieldName": "Disputes"
+      },
+      "description": "Related appointment (if applicable)"
+    },
+    {
+      "name": "Dispute Type",
+      "type": "singleSelect",
+      "options": {
+        "choices": [
+          { "name": "Chargeback", "color": "redLight2" },
+          { "name": "Refund Request", "color": "yellowLight2" },
+          { "name": "Service Complaint", "color": "orangeLight2" },
+          { "name": "Pricing Dispute", "color": "blueLight2" },
+          { "name": "Other", "color": "grayLight2" }
+        ]
+      },
+      "required": true,
+      "description": "Category of dispute"
+    },
+    {
+      "name": "Stripe Dispute ID",
+      "type": "singleLineText",
+      "description": "Stripe dispute ID (dp_xxxxx)"
+    },
+    {
+      "name": "Stripe Reason Code",
+      "type": "singleSelect",
+      "options": {
+        "choices": [
+          { "name": "fraudulent", "color": "redLight2" },
+          { "name": "duplicate", "color": "orangeLight2" },
+          { "name": "product_not_received", "color": "yellowLight2" },
+          { "name": "product_unacceptable", "color": "blueLight2" },
+          { "name": "subscription_canceled", "color": "purpleLight2" },
+          { "name": "unrecognized", "color": "grayLight2" },
+          { "name": "credit_not_processed", "color": "cyanLight2" },
+          { "name": "general", "color": "grayLight2" }
+        ]
+      },
+      "description": "Stripe's dispute reason code"
+    },
+    {
+      "name": "Dispute Date",
+      "type": "date",
+      "options": {
+        "dateFormat": { "name": "local" }
+      },
+      "required": true,
+      "description": "When dispute was filed"
+    },
+    {
+      "name": "Evidence Due Date",
+      "type": "date",
+      "options": {
+        "dateFormat": { "name": "local" }
+      },
+      "description": "Deadline to submit evidence to Stripe"
+    },
+    {
+      "name": "Dispute Amount",
+      "type": "currency",
+      "options": {
+        "precision": 2,
+        "symbol": "$"
+      },
+      "required": true,
+      "description": "Amount being contested"
+    },
+    {
+      "name": "Client Reason",
+      "type": "multilineText",
+      "description": "Client's stated reason for dispute"
+    },
+    {
+      "name": "Evidence Compiled",
+      "type": "multilineText",
+      "description": "All evidence collected from Airtable records"
+    },
+    {
+      "name": "AI Generated Defense",
+      "type": "multilineText",
+      "description": "OpenAI-generated professional dispute response"
+    },
+    {
+      "name": "Evidence Attachments",
+      "type": "multipleAttachments",
+      "description": "Screenshots, receipts, communication records"
+    },
+    {
+      "name": "Status",
+      "type": "singleSelect",
+      "options": {
+        "choices": [
+          { "name": "Open", "color": "yellowLight2" },
+          { "name": "Evidence Submitted", "color": "blueLight2" },
+          { "name": "Under Review", "color": "purpleLight2" },
+          { "name": "Won", "color": "greenLight2" },
+          { "name": "Lost", "color": "redLight2" },
+          { "name": "Settled", "color": "cyanLight2" },
+          { "name": "Withdrawn", "color": "grayLight2" }
+        ]
+      },
+      "description": "Current dispute status"
+    },
+    {
+      "name": "Resolution Date",
+      "type": "date",
+      "options": {
+        "dateFormat": { "name": "local" }
+      },
+      "description": "When dispute was resolved"
+    },
+    {
+      "name": "Outcome Notes",
+      "type": "multilineText",
+      "description": "Final outcome and learnings"
+    },
+    {
+      "name": "Auto-Submitted",
+      "type": "checkbox",
+      "description": "Evidence was auto-submitted by Make.com automation"
+    },
+    {
+      "name": "Submission Date",
+      "type": "dateTime",
+      "options": {
+        "dateFormat": { "name": "local" },
+        "timeFormat": { "name": "12hour" }
+      },
+      "description": "When evidence was submitted to Stripe"
+    },
+    {
+      "name": "Business Notified",
+      "type": "checkbox",
+      "description": "Owner was notified of the dispute"
+    },
+    {
+      "name": "Days to Resolution",
+      "type": "formula",
+      "options": {
+        "formula": "IF({Resolution Date}, DATETIME_DIFF({Resolution Date}, {Dispute Date}, 'days'), '')"
+      },
+      "description": "How long the dispute took to resolve"
+    },
+    {
+      "name": "Created Time",
+      "type": "createdTime",
+      "description": "When this record was created"
+    },
+    {
+      "name": "Last Modified",
+      "type": "lastModifiedTime",
+      "description": "When this record was last updated"
+    },
+    {
+      "name": "Notes",
+      "type": "multilineText",
+      "description": "Internal tracking notes"
+    }
+  ],
+  "views": [
+    {
+      "name": "All Disputes",
+      "type": "grid",
+      "description": "Default view showing all disputes"
+    },
+    {
+      "name": "Open Disputes",
+      "type": "grid",
+      "filter": {
+        "field": "Status",
+        "operator": "=",
+        "value": "Open"
+      },
+      "color": "yellow",
+      "description": "Disputes requiring attention"
+    },
+    {
+      "name": "Urgent - Evidence Due",
+      "type": "grid",
+      "filter": {
+        "formulaValue": "AND({Status} = 'Open', IS_BEFORE({Evidence Due Date}, DATEADD(TODAY(), 7, 'days')))"
+      },
+      "color": "red",
+      "description": "Evidence due within 7 days"
+    },
+    {
+      "name": "Won Disputes",
+      "type": "grid",
+      "filter": {
+        "field": "Status",
+        "operator": "=",
+        "value": "Won"
+      },
+      "color": "green",
+      "description": "Successfully defended disputes"
+    },
+    {
+      "name": "Lost Disputes",
+      "type": "grid",
+      "filter": {
+        "field": "Status",
+        "operator": "=",
+        "value": "Lost"
+      },
+      "color": "red",
+      "description": "Lost disputes for analysis"
+    },
+    {
+      "name": "Auto-Handled",
+      "type": "grid",
+      "filter": {
+        "field": "Auto-Submitted",
+        "operator": "=",
+        "value": true
+      },
+      "description": "Disputes handled by automation"
+    },
+    {
+      "name": "By Business",
+      "type": "grid",
+      "groupBy": "Business",
+      "description": "Grouped by business"
+    },
+    {
+      "name": "By Type",
+      "type": "grid",
+      "groupBy": "Dispute Type",
+      "description": "Grouped by dispute category"
+    },
+    {
+      "name": "Chargebacks Only",
+      "type": "grid",
+      "filter": {
+        "field": "Dispute Type",
+        "operator": "=",
+        "value": "Chargeback"
+      },
+      "description": "Bank-initiated chargebacks"
+    }
+  ]
+}

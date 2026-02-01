@@ -1,0 +1,154 @@
+{
+  "records": [
+    {
+      "fields": {
+        "Business": "Crowned Creations Studio",
+        "Full Name": "Jessica Martinez",
+        "Email": "jessica.m@email.com",
+        "Phone": "(702) 555-1001",
+        "Client Status": "Active",
+        "Preferred Services": "Custom wig installations, protective braids",
+        "Address": "1234 Desert Palm Ave, Las Vegas, NV 89101",
+        "Birthday": "1990-05-15",
+        "Instagram Handle": "@jessicam_glam",
+        "Referral Source": "Instagram",
+        "Notes": "Prefers afternoon appointments. Allergic to certain adhesives - use lace glue only."
+      }
+    },
+    {
+      "fields": {
+        "Business": "Crowned Creations Studio",
+        "Full Name": "Tiffany Johnson",
+        "Email": "tiffany.j@email.com",
+        "Phone": "(702) 555-1002",
+        "Client Status": "VIP",
+        "Preferred Services": "Full lace wigs, silk press",
+        "Address": "5678 Paradise Rd, Las Vegas, NV 89109",
+        "Birthday": "1985-11-22",
+        "Instagram Handle": "@tiffglam",
+        "Referral Source": "Referral",
+        "Notes": "VIP client - 10+ appointments. Always tips well. Prefers Saturday mornings."
+      }
+    },
+    {
+      "fields": {
+        "Business": "Crowned Creations Studio",
+        "Full Name": "Amanda Rodriguez",
+        "Email": "amanda.r@email.com",
+        "Phone": "(702) 555-1003",
+        "Client Status": "Active",
+        "Preferred Services": "Knotless braids, cornrows",
+        "Address": "9012 Tropicana Ave, Las Vegas, NV 89147",
+        "Birthday": "1995-03-08",
+        "Instagram Handle": "@amanda_styles",
+        "Referral Source": "TikTok",
+        "Notes": "College student - flexible with scheduling."
+      }
+    },
+    {
+      "fields": {
+        "Business": "Crowned Creations Studio",
+        "Full Name": "Keisha Brown",
+        "Email": "keisha.b@email.com",
+        "Phone": "(702) 555-1004",
+        "Client Status": "Blacklisted",
+        "Preferred Services": "Sew-in weaves",
+        "Address": "3456 Charleston Blvd, Las Vegas, NV 89102",
+        "Birthday": "1988-07-30",
+        "Instagram Handle": "@keisha_b",
+        "Referral Source": "Google",
+        "Notes": "BLACKLISTED - 3 no-shows. Do not accept bookings without prepayment."
+      }
+    },
+    {
+      "fields": {
+        "Business": "Lash Queen Studio",
+        "Full Name": "Sarah Thompson",
+        "Email": "sarah.t@email.com",
+        "Phone": "(702) 555-2001",
+        "Client Status": "VIP",
+        "Preferred Services": "Volume lashes, mega volume",
+        "Address": "7890 Flamingo Rd, Las Vegas, NV 89147",
+        "Birthday": "1992-09-14",
+        "Instagram Handle": "@sarah_lashes",
+        "Referral Source": "Instagram",
+        "Notes": "Monthly regular - every 3 weeks for fills. Sensitive eyes - use sensitive adhesive."
+      }
+    },
+    {
+      "fields": {
+        "Business": "Lash Queen Studio",
+        "Full Name": "Emily Davis",
+        "Email": "emily.d@email.com",
+        "Phone": "(702) 555-2002",
+        "Client Status": "Active",
+        "Preferred Services": "Classic lashes, lash lifts",
+        "Address": "2345 Eastern Ave, Las Vegas, NV 89169",
+        "Birthday": "1998-01-25",
+        "Instagram Handle": "@emilyd_beauty",
+        "Referral Source": "Referral",
+        "Notes": "Referred by Sarah Thompson. Natural look preference."
+      }
+    },
+    {
+      "fields": {
+        "Business": "Lash Queen Studio",
+        "Full Name": "Michelle Kim",
+        "Email": "michelle.k@email.com",
+        "Phone": "(702) 555-2003",
+        "Client Status": "Active",
+        "Preferred Services": "Hybrid lashes",
+        "Address": "6789 Spring Valley Rd, Las Vegas, NV 89147",
+        "Birthday": "1994-06-12",
+        "Instagram Handle": "@michellek",
+        "Referral Source": "Google",
+        "Notes": "Works nights - prefers morning appointments only."
+      }
+    },
+    {
+      "fields": {
+        "Business": "Nailed It Beauty Bar",
+        "Full Name": "Crystal Williams",
+        "Email": "crystal.w@email.com",
+        "Phone": "(702) 555-3001",
+        "Client Status": "Active",
+        "Preferred Services": "Acrylic sets, nail art",
+        "Address": "1111 Decatur Blvd, Las Vegas, NV 89107",
+        "Birthday": "1991-12-03",
+        "Instagram Handle": "@crystalnails",
+        "Referral Source": "Instagram",
+        "Notes": "Loves elaborate nail art. Usually brings Pinterest inspiration."
+      }
+    },
+    {
+      "fields": {
+        "Business": "Glow Up Esthetics",
+        "Full Name": "Rachel Green",
+        "Email": "rachel.g@email.com",
+        "Phone": "(702) 555-4001",
+        "Client Status": "VIP",
+        "Preferred Services": "Chemical peels, microneedling, facials",
+        "Address": "4567 Sunset Rd, Las Vegas, NV 89120",
+        "Birthday": "1987-04-18",
+        "Instagram Handle": "@rachelglows",
+        "Referral Source": "Referral",
+        "Notes": "Monthly facial appointments. Sensitive skin - patch test all new products."
+      }
+    },
+    {
+      "fields": {
+        "Business": "Mobile Glam Squad",
+        "Full Name": "Jennifer Lopez",
+        "Email": "jennifer.l@email.com",
+        "Phone": "(702) 555-5001",
+        "Client Status": "Active",
+        "Preferred Services": "Bridal makeup, event glam",
+        "Address": "Wynn Las Vegas (Hotel Guest)",
+        "Birthday": "1989-08-22",
+        "Instagram Handle": "@jenniferbridal",
+        "Referral Source": "Google",
+        "Notes": "Wedding party booking - bride + 4 bridesmaids for June wedding."
+      }
+    }
+  ]
+}

@@ -1,0 +1,172 @@
+{
+  "tableName": "POLICIES",
+  "tableIcon": "document",
+  "description": "Business policies for deposits, cancellations, no-shows, and disputes",
+  "fields": [
+    {
+      "name": "Policy ID",
+      "type": "autoNumber",
+      "description": "Unique identifier for each policy"
+    },
+    {
+      "name": "Business",
+      "type": "linkedRecord",
+      "options": {
+        "linkedTableName": "BUSINESSES",
+        "prefersSingleRecordLink": true,
+        "inverseLinkFieldName": "Policies"
+      },
+      "required": true,
+      "description": "Which business this policy belongs to"
+    },
+    {
+      "name": "Policy Type",
+      "type": "singleSelect",
+      "options": {
+        "choices": [
+          { "name": "Deposit", "color": "greenLight2" },
+          { "name": "Cancellation", "color": "yellowLight2" },
+          { "name": "No-Show", "color": "redLight2" },
+          { "name": "Reschedule", "color": "blueLight2" },
+          { "name": "Dispute", "color": "purpleLight2" },
+          { "name": "Late Arrival", "color": "orangeLight2" }
+        ]
+      },
+      "required": true,
+      "description": "Category of policy"
+    },
+    {
+      "name": "Policy Name",
+      "type": "singleLineText",
+      "required": true,
+      "description": "Descriptive name for the policy"
+    },
+    {
+      "name": "Policy Text",
+      "type": "multilineText",
+      "required": true,
+      "description": "Customer-facing policy language"
+    },
+    {
+      "name": "Rule Logic (JSON)",
+      "type": "multilineText",
+      "description": "Machine-readable rules for automation (JSON format)"
+    },
+    {
+      "name": "Active",
+      "type": "checkbox",
+      "options": {
+        "defaultValue": true
+      },
+      "description": "Whether this policy is currently enforced"
+    },
+    {
+      "name": "Created Date",
+      "type": "createdTime",
+      "description": "When policy was added"
+    },
+    {
+      "name": "Last Modified",
+      "type": "lastModifiedTime",
+      "description": "When policy was last updated"
+    },
+    {
+      "name": "Notes",
+      "type": "multilineText",
+      "description": "Internal notes about this policy"
+    }
+  ],
+  "views": [
+    {
+      "name": "All Policies",
+      "type": "grid",
+      "description": "Default view showing all policies"
+    },
+    {
+      "name": "Active Policies",
+      "type": "grid",
+      "filter": {
+        "field": "Active",
+        "operator": "=",
+        "value": true
+      },
+      "description": "Currently enforced policies"
+    },
+    {
+      "name": "By Business",
+      "type": "grid",
+      "groupBy": "Business",
+      "description": "Grouped by business"
+    },
+    {
+      "name": "By Type",
+      "type": "grid",
+      "groupBy": "Policy Type",
+      "description": "Grouped by policy category"
+    },
+    {
+      "name": "Cancellation Policies",
+      "type": "grid",
+      "filter": {
+        "field": "Policy Type",
+        "operator": "=",
+        "value": "Cancellation"
+      },
+      "description": "All cancellation policies"
+    },
+    {
+      "name": "Deposit Policies",
+      "type": "grid",
+      "filter": {
+        "field": "Policy Type",
+        "operator": "=",
+        "value": "Deposit"
+      },
+      "description": "All deposit policies"
+    }
+  ],
+  "samplePolicies": [
+    {
+      "Policy Type": "Cancellation",
+      "Policy Name": "48-Hour Cancellation Policy",
+      "Policy Text": "Cancellations made 48+ hours before appointment receive full refund. 24-48 hours: 50% refund. Less than 24 hours: no refund.",
+      "Rule Logic (JSON)": "{\n  \"hours_48_plus\": {\"refund_percent\": 100},\n  \"hours_24_to_48\": {\"refund_percent\": 50},\n  \"hours_under_24\": {\"refund_percent\": 0}\n}",
+      "Active": true
+    },
+    {
+      "Policy Type": "Deposit",
+      "Policy Name": "Standard Deposit Requirement",
+      "Policy Text": "A 50% non-refundable deposit is required to secure your appointment. The remaining balance is due at the time of service.",
+      "Rule Logic (JSON)": "{\n  \"deposit_percent\": 50,\n  \"applies_to\": \"all_services\",\n  \"refundable\": false\n}",
+      "Active": true
+    },
+    {
+      "Policy Type": "No-Show",
+      "Policy Name": "No-Show Policy",
+      "Policy Text": "Failure to show for your appointment without notice results in forfeiture of your deposit. Two or more no-shows may result in booking restrictions.",
+      "Rule Logic (JSON)": "{\n  \"forfeit_deposit\": true,\n  \"charge_remaining\": false,\n  \"blacklist_after_count\": 2,\n  \"grace_period_minutes\": 15\n}",
+      "Active": true
+    },
+    {
+      "Policy Type": "Reschedule",
+      "Policy Name": "Reschedule Policy",
+      "Policy Text": "Rescheduling is allowed up to 24 hours before your appointment at no charge. Rescheduling within 24 hours may result in a $25 rebooking fee.",
+      "Rule Logic (JSON)": "{\n  \"free_reschedule_hours\": 24,\n  \"rebooking_fee\": 25,\n  \"max_reschedules\": 2\n}",
+      "Active": true
+    },
+    {
+      "Policy Type": "Late Arrival",
+      "Policy Name": "Late Arrival Policy",
+      "Policy Text": "Please arrive 10 minutes early. Arrivals more than 15 minutes late may need to reschedule and could result in deposit forfeiture.",
+      "Rule Logic (JSON)": "{\n  \"grace_period_minutes\": 15,\n  \"forfeit_after_minutes\": 15,\n  \"require_reschedule\": true\n}",
+      "Active": true
+    },
+    {
+      "Policy Type": "Dispute",
+      "Policy Name": "Dispute Resolution Policy",
+      "Policy Text": "We strive for your complete satisfaction. Please contact us within 48 hours of your service with any concerns before filing a dispute with your bank.",
+      "Rule Logic (JSON)": "{\n  \"resolution_window_hours\": 48,\n  \"auto_respond_chargebacks\": true,\n  \"evidence_collection\": [\"booking_confirmation\", \"policy_acceptance\", \"service_photos\"]\n}",
+      "Active": true
+    }
+  ]
+}

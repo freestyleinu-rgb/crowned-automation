@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Missed Appointment</title>
+</head>
+<body style="font-family: 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+
+  <!-- Header -->
+  <div style="text-align: center; padding: 20px 0; border-bottom: 3px solid {{brand_color}};">
+    <h1 style="color: {{brand_color}}; margin: 0; font-size: 24px;">{{business_name}}</h1>
+  </div>
+
+  <!-- Main Content -->
+  <div style="padding: 30px 0;">
+    <p style="font-size: 18px; margin-bottom: 20px;">Hi {{client_name}},</p>
+
+    <p>We noticed you missed your scheduled appointment today. We were looking forward to seeing you!</p>
+
+    <!-- Missed Appointment Details -->
+    <div style="background-color: #f8d7da; border-radius: 10px; padding: 25px; margin: 25px 0; border-left: 4px solid #dc3545;">
+      <h3 style="margin-top: 0; color: #721c24;">Missed Appointment</h3>
+      <table style="width: 100%; border-collapse: collapse;">
+        <tr>
+          <td style="padding: 8px 0; color: #666;">Service:</td>
+          <td style="padding: 8px 0; font-weight: bold;">{{service_type}}</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px 0; color: #666;">Date & Time:</td>
+          <td style="padding: 8px 0; font-weight: bold;">{{appointment_datetime}}</td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- Policy Enforcement -->
+    <div style="background-color: #fff3cd; border-radius: 10px; padding: 25px; margin: 25px 0;">
+      <h3 style="margin-top: 0; color: #856404;">Per Our No-Show Policy:</h3>
+      <p style="color: #666;">{{no_show_policy}}</p>
+
+      <div style="background-color: white; border-radius: 8px; padding: 15px; margin-top: 15px;">
+        {{#if deposit_forfeited}}
+        <p style="margin: 0; color: #dc3545;">❌ <strong>Deposit Forfeited:</strong> {{deposit_amount}}</p>
+        {{/if}}
+
+        {{#if remaining_charged}}
+        <p style="margin: 5px 0 0 0; color: #dc3545;">💳 <strong>Remaining Balance Charged:</strong> {{remaining_balance}}</p>
+        {{/if}}
+      </div>
+    </div>
+
+    <!-- Blacklist Warning (if applicable) -->
+    {{#if blacklisted}}
+    <div style="background-color: #f8d7da; border-radius: 10px; padding: 25px; margin: 25px 0;">
+      <div style="text-align: center;">
+        <span style="font-size: 36px;">⚠️</span>
+        <h3 style="color: #721c24; margin: 10px 0;">Booking Restriction Notice</h3>
+        <p style="color: #666;">Due to multiple missed appointments, we are unable to accept future bookings at this time.</p>
+        <p style="color: #666;">If you believe this is an error or would like to discuss, please contact us directly.</p>
+      </div>
+    </div>
+    {{/if}}
+
+    <!-- Rebook CTA (if not blacklisted) -->
+    {{#unless blacklisted}}
+    <div style="text-align: center; margin: 30px 0;">
+      <p style="color: #666; margin-bottom: 15px;">We understand things happen. We'd love to reschedule!</p>
+      <a href="{{booking_form_url}}" style="display: inline-block; background-color: {{brand_color}}; color: white; text-decoration: none; padding: 15px 40px; border-radius: 30px; font-weight: bold; font-size: 16px;">Book a New Appointment →</a>
+    </div>
+    {{/unless}}
+
+    <p style="color: #666;">If you experienced an emergency or have questions, please don't hesitate to reach out to us at {{business_phone}}.</p>
+
+    <p style="margin-top: 30px;">Thank you,</p>
+    <p style="font-weight: bold; color: {{brand_color}};">{{business_name}}</p>
+  </div>
+
+  <!-- Footer -->
+  <div style="text-align: center; padding: 20px; border-top: 1px solid #eee; color: #999; font-size: 12px;">
+    <p>This email was sent by {{business_name}}</p>
+    <p>Powered by Crowned N Beauty AI</p>
+  </div>
+
+</body>
+</html>
+
+<!--
+TEMPLATE METADATA
+================
+Template Name: No-Show Notice
+Template Type: No-Show Notice
+Subject Line: Missed Appointment - {{business_name}}
+
+Variables Used:
+- {{client_name}} - Client's full name
+- {{business_name}} - Business name
+- {{brand_color}} - Business brand color (hex)
+- {{service_type}} - Type of service
+- {{appointment_datetime}} - Scheduled appointment date/time
+- {{no_show_policy}} - Business no-show policy text
+- {{deposit_amount}} - Forfeited deposit amount
+- {{remaining_balance}} - Remaining balance (if charged)
+- {{booking_form_url}} - Link to book again
+- {{business_phone}} - Business phone number
+
+Conditional Blocks:
+- {{#if deposit_forfeited}} - Show if deposit was forfeited
+- {{#if remaining_charged}} - Show if remaining balance was charged
+- {{#if blacklisted}} - Show if client has been blacklisted
+- {{#unless blacklisted}} - Show rebook option if not blacklisted
+-->

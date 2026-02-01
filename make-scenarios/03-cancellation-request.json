@@ -1,0 +1,222 @@
+{
+  "scenario": {
+    "name": "Cancellation Request",
+    "description": "Client requests cancellation → Check policy → Process refund/forfeit → Send confirmation",
+    "trigger": "Tally Cancellation Form Webhook",
+    "frequency": "On webhook event",
+    "modules": [
+      {
+        "id": 1,
+        "name": "Webhook - Cancellation Form",
+        "type": "webhooks.customWebhook",
+        "description": "Receives cancellation requests from Tally form",
+        "config": {
+          "webhookName": "Cancellation Request"
+        },
+        "expectedData": {
+          "appointment_id": "string - Appointment ID to cancel",
+          "client_email": "string - Client's email for verification",
+          "cancellation_reason": "string - Reason for cancellation"
+        }
+      },
+      {
+        "id": 2,
+        "name": "Airtable - Get Appointment",
+        "type": "airtable.getRecord",
+        "description": "Retrieves the appointment to be cancelled",
+        "config": {
+          "base": "Crowned N Beauty AI - Master",
+          "table": "APPOINTMENTS",
+          "filterFormula": "{Appointment ID} = '{{1.appointment_id}}'"
+        }
+      },
+      {
+        "id": 3,
+        "name": "Set Variable - Calculate Hours Until Appointment",
+        "type": "tools.setVariable",
+        "description": "Calculates notice period for policy enforcement",
+        "variables": [
+          {
+            "name": "hours_until",
+            "value": "{{floor((parseDate(2.fields['Appointment Date']) - now) / 3600000)}}"
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "name": "Airtable - Get Business",
+        "type": "airtable.getRecord",
+        "description": "Retrieves business details",
+        "config": {
+          "base": "Crowned N Beauty AI - Master",
+          "table": "BUSINESSES",
+          "recordId": "{{2.fields.Business[0]}}"
+        }
+      },
+      {
+        "id": 5,
+        "name": "Airtable - Get Cancellation Policy",
+        "type": "airtable.searchRecords",
+        "description": "Retrieves active cancellation policy",
+        "config": {
+          "base": "Crowned N Beauty AI - Master",
+          "table": "POLICIES",
+          "filterFormula": "AND(RECORD_ID({Business}) = '{{4.id}}', {Policy Type} = 'Cancellation', {Active} = TRUE())",
+          "maxRecords": 1
+        }
+      },
+      {
+        "id": 6,
+        "name": "Router - Refund Logic",
+        "type": "flow.router",
+        "description": "Routes based on cancellation timing vs policy",
+        "routes": [
+          {
+            "name": "Route 1 - Full Refund",
+            "condition": "{{hours_until}} >= 48",
+            "label": "48+ hours notice - Full refund"
+          },
+          {
+            "name": "Route 2 - Partial Refund",
+            "condition": "{{hours_until}} >= 24 AND {{hours_until}} < 48",
+            "label": "24-48 hours notice - 50% refund"
+          },
+          {
+            "name": "Route 3 - No Refund",
+            "condition": "{{hours_until}} < 24",
+            "label": "Less than 24 hours - No refund"
+          }
+        ]
+      },
+      {
+        "id": "7A",
+        "name": "Stripe - Issue Full Refund",
+        "type": "stripe.createRefund",
+        "description": "Processes full refund (Route 1)",
+        "route": "Route 1 - Full Refund",
+        "config": {
+          "connection": "Use Connect ID {{4.fields['Stripe Connect ID']}}",
+          "paymentIntent": "{{2.fields['Stripe Payment ID']}}",
+          "amount": null,
+          "reason": "requested_by_customer"
+        },
+        "note": "Leave amount null for full refund"
+      },
+      {
+        "id": "7B",
+        "name": "Stripe - Issue Partial Refund",
+        "type": "stripe.createRefund",
+        "description": "Processes 50% refund (Route 2)",
+        "route": "Route 2 - Partial Refund",
+        "config": {
+          "connection": "Use Connect ID {{4.fields['Stripe Connect ID']}}",
+          "paymentIntent": "{{2.fields['Stripe Payment ID']}}",
+          "amount": "{{round(2.fields['Deposit Amount'] * 0.5 * 100)}}",
+          "reason": "requested_by_customer"
+        },
+        "note": "Amount in cents for 50% refund"
+      },
+      {
+        "id": "7C",
+        "name": "Set Variable - No Refund",
+        "type": "tools.setVariable",
+        "description": "Sets refund amount to 0 (Route 3)",
+        "route": "Route 3 - No Refund",
+        "variables": [
+          {
+            "name": "refund_amount",
+            "value": 0
+          }
+        ]
+      },
+      {
+        "id": 8,
+        "name": "Aggregator - Combine Routes",
+        "type": "flow.aggregator",
+        "description": "Consolidates all three refund paths",
+        "config": {
+          "sourceModules": ["7A", "7B", "7C"]
+        }
+      },
+      {
+        "id": 9,
+        "name": "Set Variable - Determine Refund Amount",
+        "type": "tools.setVariable",
+        "description": "Calculates final refund amount for email",
+        "variables": [
+          {
+            "name": "refund_amount",
+            "value": "{{IF(hours_until >= 48, 2.fields['Deposit Amount'], IF(hours_until >= 24, round(2.fields['Deposit Amount'] * 0.5, 2), 0))}}"
+          },
+          {
+            "name": "deposit_status",
+            "value": "{{IF(hours_until >= 48, 'Refunded', IF(hours_until >= 24, 'Partial Refund', 'Forfeited'))}}"
+          }
+        ]
+      },
+      {
+        "id": 10,
+        "name": "Airtable - Update Appointment",
+        "type": "airtable.updateRecord",
+        "description": "Updates appointment with cancellation details",
+        "config": {
+          "base": "Crowned N Beauty AI - Master",
+          "table": "APPOINTMENTS",
+          "recordId": "{{2.id}}",
+          "fields": {
+            "Appointment Status": "Cancelled",
+            "Cancellation Date": "{{now}}",
+            "Cancellation Reason": "{{1.cancellation_reason}}",
+            "Deposit Status": "{{deposit_status}}"
+          }
+        }
+      },
+      {
+        "id": 11,
+        "name": "Google Calendar - Delete Event",
+        "type": "googleCalendar.deleteEvent",
+        "description": "Removes appointment from calendar",
+        "config": {
+          "eventId": "{{2.fields['Google Calendar Event ID']}}"
+        },
+        "condition": "{{2.fields['Google Calendar Event ID']}} is not empty"
+      },
+      {
+        "id": 12,
+        "name": "Airtable - Get Client",
+        "type": "airtable.getRecord",
+        "description": "Retrieves client details for email",
+        "config": {
+          "base": "Crowned N Beauty AI - Master",
+          "table": "CLIENTS",
+          "recordId": "{{2.fields.Client[0]}}"
+        }
+      },
+      {
+        "id": 13,
+        "name": "Gmail - Send Cancellation Confirmation",
+        "type": "gmail.sendEmail",
+        "description": "Sends policy-compliant cancellation email",
+        "config": {
+          "to": "{{1.client_email}}",
+          "subject": "Cancellation Confirmed - {{4.fields['Business Name']}}",
+          "body": "Hi {{12.fields['Full Name']}},\n\nYour appointment for {{2.fields['Service Type']}} on {{formatDate(2.fields['Appointment Date'], 'MMMM D, YYYY')}} has been cancelled.\n\n{{IF(refund_amount == 2.fields['Deposit Amount'], '✅ Full refund of $' + refund_amount + ' will be processed within 5-7 business days.', IF(refund_amount > 0, '⚠️ Partial refund of $' + refund_amount + ' (50%) will be processed within 5-7 business days per our cancellation policy.', '❌ Per our cancellation policy, your deposit of $' + 2.fields['Deposit Amount'] + ' has been forfeited as this cancellation was made less than 24 hours before your appointment.'))}}\n\nWe understand things come up. To rebook, visit: {{4.fields['Booking Form URL']}}\n\nThanks for your understanding,\n{{4.fields['Business Name']}}",
+          "from": "{{4.fields['Owner Email']}}"
+        }
+      }
+    ],
+    "errorHandling": {
+      "onError": "stop",
+      "notifyEmail": "admin@crownednbeauty.com"
+    },
+    "testChecklist": [
+      "Test cancellation with 48+ hours notice - expect full refund",
+      "Test cancellation with 24-48 hours notice - expect 50% refund",
+      "Test cancellation with less than 24 hours - expect no refund",
+      "Verify Stripe refund processed correctly",
+      "Verify appointment status updated to Cancelled",
+      "Verify Google Calendar event deleted",
+      "Verify cancellation email sent with correct refund information"
+    ]
+  }
+}

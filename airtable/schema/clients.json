@@ -1,0 +1,265 @@
+{
+  "tableName": "CLIENTS",
+  "tableIcon": "user",
+  "description": "Client records for all businesses - tracks booking history and risk metrics",
+  "fields": [
+    {
+      "name": "Client ID",
+      "type": "autoNumber",
+      "description": "Unique identifier for each client"
+    },
+    {
+      "name": "Business",
+      "type": "linkedRecord",
+      "options": {
+        "linkedTableName": "BUSINESSES",
+        "prefersSingleRecordLink": true,
+        "inverseLinkFieldName": "Clients"
+      },
+      "required": true,
+      "description": "Which business owns this client record"
+    },
+    {
+      "name": "Full Name",
+      "type": "singleLineText",
+      "required": true,
+      "description": "Client's full name"
+    },
+    {
+      "name": "Email",
+      "type": "email",
+      "required": true,
+      "description": "Primary contact email"
+    },
+    {
+      "name": "Phone",
+      "type": "phoneNumber",
+      "description": "Mobile number for SMS notifications"
+    },
+    {
+      "name": "Date Added",
+      "type": "createdTime",
+      "description": "When client record was created (first booking)"
+    },
+    {
+      "name": "Appointments",
+      "type": "linkedRecord",
+      "options": {
+        "linkedTableName": "APPOINTMENTS",
+        "prefersSingleRecordLink": false,
+        "inverseLinkFieldName": "Client"
+      },
+      "description": "All appointments for this client"
+    },
+    {
+      "name": "Disputes",
+      "type": "linkedRecord",
+      "options": {
+        "linkedTableName": "DISPUTES",
+        "prefersSingleRecordLink": false,
+        "inverseLinkFieldName": "Client"
+      },
+      "description": "Any disputes filed by this client"
+    },
+    {
+      "name": "Total Bookings",
+      "type": "count",
+      "options": {
+        "recordLinkFieldName": "Appointments"
+      },
+      "description": "Lifetime appointment count"
+    },
+    {
+      "name": "Completed Bookings",
+      "type": "rollup",
+      "options": {
+        "recordLinkFieldName": "Appointments",
+        "fieldIdInLinkedTable": "Appointment Status",
+        "formula": "COUNTALL(IF(values = 'Completed', 1))"
+      },
+      "description": "Count of successfully completed appointments"
+    },
+    {
+      "name": "No-Shows",
+      "type": "rollup",
+      "options": {
+        "recordLinkFieldName": "Appointments",
+        "fieldIdInLinkedTable": "Appointment Status",
+        "formula": "COUNTALL(IF(values = 'No-Show', 1))"
+      },
+      "description": "Count of no-show appointments"
+    },
+    {
+      "name": "Cancellations",
+      "type": "rollup",
+      "options": {
+        "recordLinkFieldName": "Appointments",
+        "fieldIdInLinkedTable": "Appointment Status",
+        "formula": "COUNTALL(IF(values = 'Cancelled', 1))"
+      },
+      "description": "Count of cancelled appointments"
+    },
+    {
+      "name": "Total Spent",
+      "type": "rollup",
+      "options": {
+        "recordLinkFieldName": "Appointments",
+        "fieldIdInLinkedTable": "Total Paid",
+        "formula": "SUM(values)"
+      },
+      "description": "Lifetime revenue from this client"
+    },
+    {
+      "name": "No-Show Rate %",
+      "type": "formula",
+      "options": {
+        "formula": "IF({Total Bookings} > 0, ROUND(({No-Shows} / {Total Bookings}) * 100, 1), 0)"
+      },
+      "description": "Percentage of appointments that were no-shows"
+    },
+    {
+      "name": "Risk Score",
+      "type": "formula",
+      "options": {
+        "formula": "IF({No-Show Rate %} >= 30, '🔴 High Risk', IF({No-Show Rate %} >= 15, '🟡 Medium Risk', '🟢 Low Risk'))"
+      },
+      "description": "Visual risk classification based on no-show rate"
+    },
+    {
+      "name": "Client Status",
+      "type": "singleSelect",
+      "options": {
+        "choices": [
+          { "name": "Active", "color": "greenLight2" },
+          { "name": "VIP", "color": "purpleLight2" },
+          { "name": "Blacklisted", "color": "redLight2" },
+          { "name": "Inactive", "color": "grayLight2" }
+        ]
+      },
+      "description": "Current relationship status"
+    },
+    {
+      "name": "Last Appointment",
+      "type": "rollup",
+      "options": {
+        "recordLinkFieldName": "Appointments",
+        "fieldIdInLinkedTable": "Appointment Date",
+        "formula": "MAX(values)"
+      },
+      "description": "Most recent appointment date"
+    },
+    {
+      "name": "Preferred Services",
+      "type": "multilineText",
+      "description": "Notes on client's preferred services"
+    },
+    {
+      "name": "Address",
+      "type": "singleLineText",
+      "description": "Client address (for mobile service businesses)"
+    },
+    {
+      "name": "Birthday",
+      "type": "date",
+      "options": {
+        "dateFormat": { "name": "local" }
+      },
+      "description": "For birthday promotions"
+    },
+    {
+      "name": "Instagram Handle",
+      "type": "singleLineText",
+      "description": "Social media for tagging/portfolio"
+    },
+    {
+      "name": "Referral Source",
+      "type": "singleSelect",
+      "options": {
+        "choices": [
+          { "name": "Instagram", "color": "pinkLight2" },
+          { "name": "TikTok", "color": "cyanLight2" },
+          { "name": "Google", "color": "blueLight2" },
+          { "name": "Referral", "color": "greenLight2" },
+          { "name": "Walk-in", "color": "yellowLight2" },
+          { "name": "Other", "color": "grayLight2" }
+        ]
+      },
+      "description": "How they found the business"
+    },
+    {
+      "name": "Notes",
+      "type": "multilineText",
+      "description": "Internal notes about this client"
+    },
+    {
+      "name": "Last Modified",
+      "type": "lastModifiedTime",
+      "description": "When record was last updated"
+    }
+  ],
+  "views": [
+    {
+      "name": "All Clients",
+      "type": "grid",
+      "description": "Default view showing all client records"
+    },
+    {
+      "name": "High Risk",
+      "type": "grid",
+      "filter": {
+        "formulaValue": "{Risk Score} = '🔴 High Risk'"
+      },
+      "color": "red",
+      "description": "Clients with high no-show rates"
+    },
+    {
+      "name": "VIP Clients",
+      "type": "grid",
+      "filter": {
+        "field": "Client Status",
+        "operator": "=",
+        "value": "VIP"
+      },
+      "description": "Premium/VIP clients"
+    },
+    {
+      "name": "Blacklisted",
+      "type": "grid",
+      "filter": {
+        "field": "Client Status",
+        "operator": "=",
+        "value": "Blacklisted"
+      },
+      "description": "Clients who are banned from booking"
+    },
+    {
+      "name": "By Business",
+      "type": "grid",
+      "groupBy": "Business",
+      "description": "Grouped by which business they belong to"
+    },
+    {
+      "name": "New This Month",
+      "type": "grid",
+      "filter": {
+        "formulaValue": "IS_AFTER({Date Added}, DATEADD(TODAY(), -30, 'days'))"
+      },
+      "description": "Clients added in the last 30 days"
+    },
+    {
+      "name": "Top Spenders",
+      "type": "grid",
+      "sort": {
+        "field": "Total Spent",
+        "direction": "desc"
+      },
+      "description": "Sorted by lifetime value"
+    },
+    {
+      "name": "By Risk Level",
+      "type": "grid",
+      "groupBy": "Risk Score",
+      "description": "Grouped by risk classification"
+    }
+  ]
+}
